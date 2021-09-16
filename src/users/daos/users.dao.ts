@@ -3,7 +3,8 @@ import debug from 'debug';
 import { CreateUserDto } from '../dto/create.user.dto';
 import { PatchUserDto } from '../dto/patch.user.dto';
 import { PutUserDto } from '../dto/put.user.dto';
-
+import fs  from 'fs';
+import _ from 'underscore';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 /**
@@ -25,7 +26,53 @@ class UsersDao {
     }
 
     async getUsers() {
-        return this.users;
+        console.clear();
+        const fileName = `${__dirname}/BB-PO-1.json`;
+        let listOfTableHeader: any = null;
+        const listOfTableRow: any = [];
+        const fileBuffer: any = fs.readFileSync(fileName);
+        const rawPOResult = JSON.parse(fileBuffer);
+
+        if(rawPOResult.length >= 2) {
+            // header
+            for (let index = 0; index < rawPOResult[2].data.length; index++) {
+                const item = rawPOResult[2].data[index];
+                if(index === 2) {
+                    listOfTableHeader = _.pluck(item, 'text');
+                }
+            }
+            // row
+            for (let index = 0; index < rawPOResult[2].data.length; index++) {
+                const itemRow = rawPOResult[2].data[index];
+                if(index > 2) {
+                    let tempArray:any = [];
+                    _.each(itemRow,(row: any) => {
+                        if(row.text) {
+                            const splitResult = row.text.split('\r');
+                            tempArray = tempArray.concat(splitResult);
+                        }
+                    });
+                    //console.log(tempArray);
+                }
+            }
+
+            _.map(rawPOResult,(item) => {
+                //console.log(item);
+                if(item['extraction_method']  === 'lattice') {
+                    _.map(item['data'],(itemInner) => {
+                        let tempArray:any = [];
+                        _.map(itemInner ,(row) => {
+                            if(row['text']) {
+                                const splitResult = row.text.split('\r');
+                                tempArray = tempArray.concat(splitResult);
+                            }
+                        });
+                        console.log(tempArray);
+                    });
+                }
+            })
+        }
+        return listOfTableRow;
     }
 
     async getUserById(userId: string) {
@@ -78,6 +125,32 @@ class UsersDao {
             return currentUser;
         } else {
             return null;
+        }
+    }
+
+    private getTableHeader(rawPOResult: any): void {
+        for (let index = 0; index < rawPOResult[2].data.length; index++) {
+            const item = rawPOResult[2].data[index];
+            if(index === 2) {
+                const headers = _.pluck(item, 'text');
+            }
+        }
+    }
+
+    private getTableRow(rawPOResult: any): void {
+        for (let index = 0; index < rawPOResult[2].data.length; index++) {
+            const itemRow = rawPOResult[2].data[index];
+            if(index > 2) {
+                let tempArray:any = [];
+                _.each(itemRow,(row: any) => {
+                    if(row.text) {
+                     //   console.log(index,row);
+                        const splitResult = row.text.split('\r');
+                        tempArray = tempArray.concat(splitResult);
+                    }
+                });
+                console.log(tempArray);
+            }
         }
     }
 }
