@@ -4,7 +4,7 @@ import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
 import cors from 'cors';
 import { CommonRoutesConfig } from './common/common.routes.config';
-import { UsersRoutes } from './users/users.routes.config';
+import { BigBazaarRoutes } from './big-bazaar/big-bazaar.routes.config';
 import debug from 'debug';
 
 const app: express.Application = express();
@@ -31,7 +31,7 @@ if (!process.env.DEBUG) {
 
 app.use(expressWinston.logger(loggerOptions));
 
-routes.push(new UsersRoutes(app));
+routes.push(new BigBazaarRoutes(app));
 console.log('hello world !!!')
 const runningMessage = `Server running at http://localhost:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
