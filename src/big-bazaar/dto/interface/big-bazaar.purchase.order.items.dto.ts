@@ -2,7 +2,7 @@ export interface IBigBazaarPurchaseOrderItemsDto {
     SAPMatCode: string;
     ArticleEAN: string;
     ArticleCode: string;
-    DescriptionOfGood: string;
+    DescriptionOfGoods: string;
     Quantity: string;
     UnitOfMeasure: string;
     TaxableAmount: string;

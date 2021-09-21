@@ -4,7 +4,7 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
     SAPMatCode: string;
     ArticleEAN: string;
     ArticleCode: string;
-    DescriptionOfGood: string;
+    DescriptionOfGoods: string;
     Quantity: string;
     UnitOfMeasure: string;
     TaxableAmount: string;
@@ -13,7 +13,7 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
         this.SAPMatCode= "";
         this.ArticleEAN= "";
         this.ArticleCode = "";
-        this.DescriptionOfGood= "";
+        this.DescriptionOfGoods= "";
         this.Quantity= "";
         this.UnitOfMeasure= "";
         this.TaxableAmount= "";
