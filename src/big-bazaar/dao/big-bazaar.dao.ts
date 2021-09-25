@@ -50,8 +50,11 @@ class BigBazaarDAO {
                 })
             }
             //
-            //console.log(listOfTableRow);
-            console.log(this.getSoldToParty(listOfTableRow));
+            console.log
+            
+            
+            (listOfTableRow);
+            //console.log(this.getSoldToParty(listOfTableRow));
             const objPurchaseOrder = new BigBazaarPurchaseOrderDto();
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
