@@ -19,8 +19,13 @@ class BigBazaarController {
     }
 
     async createPurchaseOrder(req: express.Request, res: express.Response) {
-        const purchaseOrderId = await bigBazaarService.create(req.body);
-        res.status(201).send({ id: purchaseOrderId });
+        // push data to sql on success and on error
+        try {
+            const purchaseOrderId = await bigBazaarService.create(req.body);
+            res.status(200).send({ data: purchaseOrderId }); 
+        } catch (error) {
+            res.status(500).send({ error: "some error" }); 
+        }
     }
 
     async removePurchaseOrder(req: express.Request, res: express.Response) {

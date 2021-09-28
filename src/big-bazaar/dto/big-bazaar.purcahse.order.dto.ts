@@ -39,10 +39,10 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
 
     private init() {
        // Order Type	Sales rg	Dist Ch	Div
-       this.OrderType = "SOME-CONSTANT";
-       this.SalesOrg = "SOME-CONSTANT";
-       this.DistChannel = "SOME-CONSTANT";
-       this.Division = "SOME-CONSTANT";
+       this.OrderType = "ZQHT";
+       this.SalesOrg = "VIPL";
+       this.DistChannel = "MT";
+       this.Division = "HL";
     }
 }
     

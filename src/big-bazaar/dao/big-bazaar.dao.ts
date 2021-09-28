@@ -50,18 +50,29 @@ class BigBazaarDAO {
                 })
             }
             //
-            console.log
-            
-            
-            (listOfTableRow);
-            //console.log(this.getSoldToParty(listOfTableRow));
+            console.log(listOfTableRow);
             const objPurchaseOrder = new BigBazaarPurchaseOrderDto();
+            this.setPurchaseOrderHeader(objPurchaseOrder,listOfTableRow);
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
                 const obj = new BigBazaarPurchaseOrderItemsDto();
                 obj.ArticleEAN = this.getArticleEAN(item[0]);
                 obj.ArticleCode = this.getArticleCode(item[0]);
                 obj.DescriptionOfGoods = this.getDescriptionOfGoods(item[0]);
+                obj.HSN = this.getHSN(item[1]);
+                obj.MRP = this.getHSN(item[2]);
+                obj.Quantity = this.getQuantity(item[3]);
+                obj.UnitOfMeasure = this.getUoM(item[4]);
+                obj.BasicCost = this.getBasicCost(item[5]);
+                obj.TaxableAmount = this.getTaxableAmount(item[6]);
+                //state-gst
+                obj.SGST_Amount = this.getSGST_Amount(item[7]);
+                obj.SGST_Rate = this.getSGST_Rate(item[7]);
+                //central-gst
+                obj.CGST_Amount = this.getSGST_Amount(item[8]);
+                obj.CGST_Rate = this.getSGST_Rate(item[8]);
+                obj.TotalAmount = this.getTotalAmount(item[9]);
+
                 listOfItems.push(obj);
             });
             objPurchaseOrder.Items = listOfItems;
@@ -85,47 +96,34 @@ class BigBazaarDAO {
         return new BigBazaarPurchaseOrderDto();
     }
 
+    private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawJsonlist: string[]) {
+        objHeader.PurchaseOrderNumber = this.getPurchaseOrderNumber(rawJsonlist);
+        objHeader.PurchaseOrderDate = this.getPurchaseOrderDate(rawJsonlist);
+        objHeader.SoldToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY,1)
+        objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
+
+    }
+
+    private setPurchaseOrderItems() {
+
+    }
+
     private getProcessedDataByField(rawJsonlist: string[], fieldToMagnify: string, filterCount: number) {
         const filteredResult = myHelper.filterRawJsonListByLength(rawJsonlist, filterCount);
         const data = myHelper.filterRawJsonListBySearchTerm(filteredResult, fieldToMagnify);
         return data;
     }
 
-    private getPurchaseOrderNumber(list: Array<string>): string | undefined {
+    private getPurchaseOrderNumber(list: Array<string>): string  {
         let poNumber = '0';
         const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.PO_NUMBER, 1);
         if(data && data[0]) {
             const splitResult = myHelper.splitString(data[0], '\r');
-            if(splitResult) {
-                poNumber = splitResult[1];
-            }
-        }
-        //console.log(poNumber);
-        return poNumber;
-    }
-
-    private getSoldToParty(list: Array<string>): string {
-        let soldToParty = '';
-        const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY, 1);
-        if(data && data[0]) {
-            const splitResult = myHelper.splitString(data[0], '\r');
             if(splitResult && splitResult.length > 0) {
-                soldToParty = splitResult[0];
+                poNumber = splitResult[1].replace(':','');
             }
         }
-        return soldToParty;
-    }
-
-    private getShipToParty(list: Array<string>): string {
-        let shipToParty = '';
-        const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY, 1);
-        if(data && data[0]) {
-            const splitResult = myHelper.splitString(data[0], '\r');
-            if(splitResult && splitResult.length === 0) {
-                shipToParty = splitResult[0];
-            }
-        }
-        return shipToParty;
+        return poNumber;
     }
 
     private getPurchaseOrderDate(list: Array<string>): string {
@@ -134,7 +132,7 @@ class BigBazaarDAO {
         if(data && data[0]) {
             const splitResult = myHelper.splitString(data[0], '\r');
             if(splitResult && splitResult.length > 0 && splitResult.length <= 4) {
-                poDate = splitResult[3];
+                poDate = splitResult[3].replace(':','');
             }
         }
         return poDate;
@@ -186,15 +184,112 @@ class BigBazaarDAO {
         return description;
     }
 
-    private getQuantity(): string {
+    private getHSN(item: string): string {
+        let hsn = '';
+        if(item) {
+            const splitResult = myHelper.splitString(item, '\r');
+            if(splitResult && splitResult.length > 0) {
+                for (let i = 0; i < splitResult.length; i++) {
+                    hsn = `${hsn}${splitResult[i]}`;
+                }
+            }
+        }
+        return hsn;
+    }  
+    
+    private getMRP(item: string): string {
+        let mrp = '0';
+        if(item) {
+            mrp = item;
+        }
+        return mrp;
+    }
+
+    private getQuantity(item: string): string {
         let qty = '0';
+        if(item) {
+            qty = item;
+        }
         return qty;
     }
 
-    private getTaxableAmount(): string {
+    private getUoM(item: string): string {
+        let uom = '';
+        if(item) {
+            uom = item;
+        }
+        return uom;
+    }
+
+    private getBasicCost(item: string): string {
+        let badicCost = '0';
+        if(item) {
+            badicCost = item;
+        }
+        return badicCost;
+    }
+
+
+    private getTaxableAmount(item: string): string {
         let taxableAmt = '0';
+        if(item) {
+            taxableAmt = item;
+        }
         return taxableAmt;
     }
+
+    private getSGST_Rate(item: string): string {
+        let sgst_Rate = '0';
+        if(item) {
+            const splitResult = myHelper.splitString(item, '\r');
+            if(splitResult && splitResult.length > 0) {
+                sgst_Rate = splitResult[0];
+            }
+        }
+        return sgst_Rate;
+    }
+
+    private getSGST_Amount(item: string): string {
+        let sgst_Amount = '0';
+        if(item) {
+            const splitResult = myHelper.splitString(item, '\r');
+            if(splitResult && splitResult.length > 0) {
+                sgst_Amount = splitResult[1];
+            }
+        }
+        return sgst_Amount;
+    }
+
+    private getCGST_Rate(item: string): string {
+        let cgst_Rate = '0';
+        if(item) {
+            const splitResult = myHelper.splitString(item, '\r');
+            if(splitResult && splitResult.length > 0) {
+                cgst_Rate = splitResult[0];
+            }
+        }
+        return cgst_Rate;
+    }
+
+    private getCGST_Amount(item: string): string {
+        let cgst_Amount = '0';
+        if(item) {
+            const splitResult = myHelper.splitString(item, '\r');
+            if(splitResult && splitResult.length > 0) {
+                cgst_Amount = splitResult[1];
+            }
+        }
+        return cgst_Amount;
+    }
+
+    private getTotalAmount(item: string): string {
+        let totalAmount = '0';
+        if(item) {
+            totalAmount = item;
+        }
+        return totalAmount;
+    }
+
    
 }
 

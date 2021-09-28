@@ -7,7 +7,7 @@ const BBConstatnts = {
         PO_NUMBER: "P. O. Number",
         PO_DATE: "Date",
         SOLD_TO_PARTY: "Future Retail Limited",
-        SHIP_TO_PARTY: "Delivery & Billing Address"
+        SHIP_TO_PARTY: "Delivery &"
     }
 }
 

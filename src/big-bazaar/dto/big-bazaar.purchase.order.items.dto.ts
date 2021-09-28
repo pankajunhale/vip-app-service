@@ -8,6 +8,14 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
     Quantity: string;
     UnitOfMeasure: string;
     TaxableAmount: string;
+    HSN: string;
+    MRP: string;
+    BasicCost: string;
+    SGST_Rate: string;
+    SGST_Amount: string;
+    CGST_Rate: string;
+    CGST_Amount: string;
+    TotalAmount: string;
 
     constructor() {
         this.SAPMatCode= "";
@@ -17,6 +25,15 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
         this.Quantity= "";
         this.UnitOfMeasure= "";
         this.TaxableAmount= "";
+        this.HSN = "";
+        this.MRP= ""
+        this.BasicCost = "";
+        this.SGST_Rate = "";
+        this.SGST_Amount = "";
+        this.CGST_Rate = "";
+        this.CGST_Amount = "";
+        this.TotalAmount = "";
     }
+    
 
 }
