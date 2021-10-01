@@ -60,7 +60,7 @@ class BigBazaarDAO {
                 obj.ArticleCode = this.getArticleCode(item[0]);
                 obj.DescriptionOfGoods = this.getDescriptionOfGoods(item[0]);
                 obj.HSN = this.getHSN(item[1]);
-                obj.MRP = this.getHSN(item[2]);
+                obj.MRP = this.getMRP(item[2]);
                 obj.Quantity = this.getQuantity(item[3]);
                 obj.UnitOfMeasure = this.getUoM(item[4]);
                 obj.BasicCost = this.getBasicCost(item[5]);
@@ -75,6 +75,7 @@ class BigBazaarDAO {
 
                 listOfItems.push(obj);
             });
+            // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
             return objPurchaseOrder;
         }
@@ -101,7 +102,6 @@ class BigBazaarDAO {
         objHeader.PurchaseOrderDate = this.getPurchaseOrderDate(rawJsonlist);
         objHeader.SoldToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY,1)
         objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
-
     }
 
     private setPurchaseOrderItems() {

@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "configuration_key" : "big-bazaar",
+            "domain": "bigbazaar.com",
+            "purchase_order_columns": [
+                {  
+                    "name": "Article  EAN\rArticle Code\rDescription of\rGoods", 
+                    "count": 3,
+                    "hasMultipleColumns": true,
+                    "columnList": ["Article EAN", "Article Code", "Description of Goods"],
+                    "columnSeparatedBy": "\r"
+                },
+                {  
+                    "name": "HSN", 
+                    "count": 1,
+                    "hasMultipleColumns": false,
+                    "columnList": ["HSN"],
+                    "columnSeparatedBy": null
+                }
+            ]
+
+    }]
+}
