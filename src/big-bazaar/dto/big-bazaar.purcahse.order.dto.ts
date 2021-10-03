@@ -1,5 +1,6 @@
 import { IBigBazaarPurchaseOrderDto } from "./interface/big-bazaar.purchase.order.dto";
 import { IBigBazaarPurchaseOrderItemsDto } from "./interface/big-bazaar.purchase.order.items.dto";
+import { IBigBazaarPurchaseOrderItemsHeader } from "./interface/big-bazaar.purchase.order.items.header";
 
 export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     Id: string;
@@ -16,8 +17,10 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     Plant: string;
     OrderReason: string;
     ConditonType: string;
+    ItemsHeader: string[];
     Items: IBigBazaarPurchaseOrderItemsDto[];
-
+    ItemColumnHeaders: Array<IBigBazaarPurchaseOrderItemsHeader>
+    
     constructor() {
         this.Id = '';
         this.PurchaseOrderNumber= '';
@@ -33,6 +36,8 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
         this.Plant= '';
         this.OrderReason= '';
         this.ConditonType= '';
+        this.ItemsHeader = [];
+        this.ItemColumnHeaders = [];
         this.Items = [];
         this.init();
     }

@@ -3,11 +3,14 @@ import fs from 'fs';
 import _ from 'underscore';
 import { IBigBazaarPurchaseOrderDto } from '../dto/interface/big-bazaar.purchase.order.dto';
 import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto';
-const log: debug.IDebugger = debug('app:in-memory-dao');
 import myHelper from '../../common/my-helper';
 import BBConstatnts from '../../common/big-bazaar.constants';
 import { IBigBazaarPurchaseOrderItemsDto } from '../dto/interface/big-bazaar.purchase.order.items.dto';
 import { BigBazaarPurchaseOrderItemsDto } from '../dto/big-bazaar.purchase.order.items.dto';
+import { IBigBazaarPurchaseOrderItemsHeader } from '../dto/interface/big-bazaar.purchase.order.items.header';
+import { BigBazaarPurchaseOrderItemsHeader } from '../dto/big-bazaar.purchase.order.items.header.dto';
+import bigBazarConfig from '../../config/po.config.json';
+const log: debug.IDebugger = debug('app:in-memory-dao');
 
 class BigBazaarDAO {
 
@@ -50,8 +53,11 @@ class BigBazaarDAO {
                 })
             }
             //
-            console.log(listOfTableRow);
+            //console.log(bigBazarConfig);
             const objPurchaseOrder = new BigBazaarPurchaseOrderDto();
+            objPurchaseOrder.ItemsHeader =  listOfTableHeader;
+            objPurchaseOrder.ItemColumnHeaders = this.getPOHeaders(listOfTableHeader);
+           // this.getHeaderIndexByName(listOfTableHeader, 'Article EAN');
             this.setPurchaseOrderHeader(objPurchaseOrder,listOfTableRow);
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
@@ -104,8 +110,36 @@ class BigBazaarDAO {
         objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
     }
 
-    private setPurchaseOrderItems() {
 
+    private getPOHeaders(headers: Array<string>): Array<IBigBazaarPurchaseOrderItemsHeader> {
+        const list = Array<BigBazaarPurchaseOrderItemsHeader>();
+        const splitBy = '\r';
+        headers.map((item, index) => {
+            const splitResult = myHelper.splitString(item, splitBy);
+
+            if(splitResult && splitResult.length > 1) {
+
+                splitResult.map((colItem, colIndex) => {
+                    const obj = new BigBazaarPurchaseOrderItemsHeader(splitBy);    
+                    obj.hasSeparator = true;
+                    obj.index = index;
+                    obj.name = colItem;
+                    //obj.columnIndex = obj.findColumnIndex(name,splitResult);                
+                    list.push(obj);
+                });
+
+            }
+            else {
+
+                const obj = new BigBazaarPurchaseOrderItemsHeader(splitBy);
+                obj.index = index;
+                obj.name = item;
+                obj.columnIndex = index;
+                list.push(obj);
+
+            }
+        });
+        return list;
     }
 
     private getProcessedDataByField(rawJsonlist: string[], fieldToMagnify: string, filterCount: number) {

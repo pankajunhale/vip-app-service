@@ -1,4 +1,5 @@
 import { IBigBazaarPurchaseOrderItemsDto } from "./big-bazaar.purchase.order.items.dto";
+import { IBigBazaarPurchaseOrderItemsHeader } from "./big-bazaar.purchase.order.items.header";
 
 export interface IBigBazaarPurchaseOrderDto {
     Id: string;
@@ -15,7 +16,9 @@ export interface IBigBazaarPurchaseOrderDto {
     Plant: string;
     OrderReason: string;
     ConditonType: string;
-    Items: Array<IBigBazaarPurchaseOrderItemsDto>
+    ItemsHeader: Array<string>;
+    Items: Array<IBigBazaarPurchaseOrderItemsDto>;
+    ItemColumnHeaders: Array<IBigBazaarPurchaseOrderItemsHeader>
 }
 
 //SAP Mat code	Article EAN	Article Code	Description of Goods	Quantity	UoM	Storage Location	Plant	Order reason	Condition Type	Taxable Amount

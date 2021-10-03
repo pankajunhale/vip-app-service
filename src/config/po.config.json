@@ -5,18 +5,52 @@
             "domain": "bigbazaar.com",
             "purchase_order_columns": [
                 {  
-                    "name": "Article  EAN\rArticle Code\rDescription of\rGoods", 
-                    "count": 3,
-                    "hasMultipleColumns": true,
-                    "columnList": ["Article EAN", "Article Code", "Description of Goods"],
-                    "columnSeparatedBy": "\r"
+                    "name": "Article  EAN"
                 },
                 {  
-                    "name": "HSN", 
-                    "count": 1,
-                    "hasMultipleColumns": false,
-                    "columnList": ["HSN"],
-                    "columnSeparatedBy": null
+                    "name": "Article Code"
+                },
+                {  
+                    "name": "Description of Goods"
+                },
+                {  
+                    "name": "Description of"
+                },
+                {  
+                    "name": "Goods"
+                },
+                {  
+                    "name": "HSN"                
+                },
+                {  
+                    "name": "MRP"                    
+                },
+                {  
+                    "name": "Qty"                    
+                },
+                {  
+                    "name": "UoM"
+                },
+                {  
+                    "name": "Basic Cost"                    
+                },
+                {  
+                    "name": "Taxable Value"                    
+                },
+                {  
+                    "name": "SGST Rate"                    
+                },
+                {  
+                    "name": "SGST Amt"                    
+                },
+                {  
+                    "name": "CGST Rate"                    
+                },
+                {  
+                    "name": "CGST Amt"                    
+                },
+                {  
+                    "name": "Total Amt"                    
                 }
             ]
 
