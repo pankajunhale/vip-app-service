@@ -1,6 +1,5 @@
 import express from 'express';
 import bigBazaarService from '../services/big-bazaar.service';
-import argon2 from 'argon2';
 import debug from 'debug';
 import { FilterPurchaseOrderRequest } from '../../common/filter.purchase-order';
 import {Query} from '../../common/interfaces/query.interface';

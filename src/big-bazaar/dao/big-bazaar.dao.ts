@@ -9,8 +9,6 @@ import { IBigBazaarPurchaseOrderItemsDto } from '../dto/interface/big-bazaar.pur
 import { BigBazaarPurchaseOrderItemsDto } from '../dto/big-bazaar.purchase.order.items.dto';
 import { IBigBazaarPurchaseOrderItemsHeader } from '../dto/interface/big-bazaar.purchase.order.items.header';
 import { BigBazaarPurchaseOrderItemsHeader } from '../dto/big-bazaar.purchase.order.items.header.dto';
-import bigBazarConfig from '../../config/po.config.json';
-import { BigBazaar_DAO_DB } from './big-bazaar.dao.db';
 import { PurchaseOrderDb } from '../../services/purchase.order';
 
 const log: debug.IDebugger = debug('app:in-memory-dao');
@@ -87,6 +85,9 @@ class BigBazaarDAO {
             });
             // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
+            //
+            new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
+            //
             return objPurchaseOrder;
         }
         catch (error) {
