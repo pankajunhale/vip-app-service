@@ -24,6 +24,10 @@ export class BigBazaarRoutes extends CommonRoutesConfig {
             .route(`/purchase-order/create`)
             .get(bigBazaarController.createPurchaseOrder)
 
+        this.app
+            .route(`/purchase-order/master`)
+            .get(bigBazaarController.getPurchaseOrderMaster)
+
         return this.app;
     }
 }

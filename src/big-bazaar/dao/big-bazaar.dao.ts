@@ -10,6 +10,9 @@ import { BigBazaarPurchaseOrderItemsDto } from '../dto/big-bazaar.purchase.order
 import { IBigBazaarPurchaseOrderItemsHeader } from '../dto/interface/big-bazaar.purchase.order.items.header';
 import { BigBazaarPurchaseOrderItemsHeader } from '../dto/big-bazaar.purchase.order.items.header.dto';
 import bigBazarConfig from '../../config/po.config.json';
+import { BigBazaar_DAO_DB } from './big-bazaar.dao.db';
+import { PurchaseOrderDb } from '../../services/purchase.order';
+
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 class BigBazaarDAO {
@@ -20,6 +23,7 @@ class BigBazaarDAO {
 
     async processAndCreatePO(jsonFile: string): Promise<IBigBazaarPurchaseOrderDto>{
         const fileName = `${__dirname}/${jsonFile}`;
+        //db.query()
         try {
             console.clear();
             let listOfTableHeader: any = null;
@@ -101,6 +105,10 @@ class BigBazaarDAO {
 
     async getPurchaseOrderById(id: string): Promise<IBigBazaarPurchaseOrderDto> {
         return new BigBazaarPurchaseOrderDto();
+    }
+
+    async getPurchaseOrderMaterByDate(page: string) {
+        return new PurchaseOrderDb().getMultiple(page);
     }
 
     private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawJsonlist: string[]) {

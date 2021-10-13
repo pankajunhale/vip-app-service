@@ -1,4 +1,5 @@
 from datetime import date
+import constant
 
 def get_todays_date():
 
@@ -39,3 +40,15 @@ def get_time():
 
 def is_file_exist():
     return 1
+
+def get_sent_since_query():
+    todays_date = date.today()
+    month = todays_date.month
+    month_str = ''
+    date_str = ''
+    if month == 10:
+        month_str = 'OCT'
+        date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
+
+    query = '({a} "{b}")'.format(a=constant.SENT_SINCE_QUERY,b=date_str)
+    return query

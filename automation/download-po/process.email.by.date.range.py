@@ -9,7 +9,8 @@ import importlib
 import constant
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
-
+db_module_name = 'db-utility'
+db_utility = importlib.import_module(db_module_name)
 # -------------------------------------------------
 #
 # Utility to read email from Gmail Using Python
@@ -30,7 +31,7 @@ logger.addHandler(file_handler)
 # define file handler and set formatter
 now = datetime.now()
 current_time = now.strftime('')
-print("Today date is: ",utility.get_todays_date())
+print("Today date is: ",utility.get_sent_since_query())
 
 logger.info('my logging message')
 def main():
@@ -38,7 +39,7 @@ def main():
         con = imaplib.IMAP4_SSL(constant.SMTP_SERVER,constant.SMTP_PORT)
         con.login(constant.FROM_EMAIL,constant.FROM_PWD)
         con.select('inbox')
-        isOk, msgNumbers = con.search(None, '(SENTSINCE "28-Sep-2021")')
+        isOk, msgNumbers = con.search(None, utility.get_sent_since_query())
         #sql isExist
         #folder
         # insert into db
@@ -73,12 +74,16 @@ def main():
                 path = os.path.dirname(__file__)
 
                 print(path)
+            #     create_po(email_id,email_subject,email_received_at,message_id,pdf_file_name,
+            # pdf_file_path):
                 for part in email_message.walk():
                     counter = 0
                     if part.get_content_type() == "application/pdf":
                         filename = part.get_filename() 
-                        hasAttchment = True
-                        sv_path = os.path.join('./', utility.get_todays_date() + '_poid_'+ str(messageId) + '.pdf') 
+                        hasAttachment = True
+                        pdf_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.pdf';
+                        sv_path = os.path.join('./', pdf_file_name) 
+
                         if filename is not None: 
                             counter = counter + 1
                             if not os.path.isfile(sv_path): 
@@ -86,6 +91,7 @@ def main():
                                     fp = open(sv_path, 'wb') 
                                     fp.write(part.get_payload(decode=True)) 
                                     fp.close() 
+                                    create_po_master(email_from,'',utility.get_todays_date(),messageId,pdf_file_name,sv_path,hasAttachment)
                                 except OSError as error:
                                     logger.info("Error:{a}".format(a=error))
                             else:
@@ -102,6 +108,16 @@ def main():
         print(f"Runtime Error: {error}")
         logger.error("Runtime Error:{a}".format(a=error))
         exit(1)
+
+def create_po_master(email_id,email_subject,email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment):
+    try:
+        print(email_id)
+        db_utility.create_po(email_id,'email_subject',email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment)
+    except RuntimeError as error:
+        print(f"Runtime Error: {error}")
+        logger.error("Runtime Error:{a}".format(a=error))
+        exit(1)
+
 
 if __name__ == "__main__":
     main()

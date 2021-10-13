@@ -30,6 +30,14 @@ class BigBazaarService implements CRUD {
     async deleteById(id: string) {
         return "";
     }
+
+    async getPurchaseOrderMasterByDate(page: string) {
+        try {
+            return bigBazaarDao.getPurchaseOrderMaterByDate(page);
+        } catch (error) {
+            throw new Error(`Error in processing your request`);
+        }
+    }
 }
 
 export default new BigBazaarService();
