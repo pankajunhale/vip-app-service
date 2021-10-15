@@ -6,6 +6,7 @@ import cors from 'cors';
 import { CommonRoutesConfig } from './common/common.routes.config';
 import { BigBazaarRoutes } from './big-bazaar/big-bazaar.routes.config';
 import debug from 'debug';
+import cron from 'node-cron';
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
@@ -32,8 +33,7 @@ if (!process.env.DEBUG) {
 app.use(expressWinston.logger(loggerOptions));
 
 routes.push(new BigBazaarRoutes(app));
-console.log('hello world !!!')
-const runningMessage = `Server running at http://localhost:${port}`;
+const runningMessage = `Server running at port:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
     res.status(200).send(runningMessage + ' : ' + new Date())
 });
@@ -43,3 +43,5 @@ server.listen(port, () => {
     });
     console.log(runningMessage);
 });
+
+cron.schedule('* * * * *', () => {console.log("Task is running every minute " + new Date())});
