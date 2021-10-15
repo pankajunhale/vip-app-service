@@ -1,4 +1,5 @@
 from datetime import date
+import os
 import constant
 
 def get_todays_date():
@@ -38,8 +39,6 @@ def get_time():
     current_time = now.strftime("%H:%M:%S")
     return current_time
 
-def is_file_exist():
-    return 1
 
 def get_sent_since_query():
     todays_date = date.today()
@@ -52,3 +51,6 @@ def get_sent_since_query():
 
     query = '({a} "{b}")'.format(a=constant.SENT_SINCE_QUERY,b=date_str)
     return query
+
+def isFileExist(filePath):
+    return os.path.isfile(filePath)

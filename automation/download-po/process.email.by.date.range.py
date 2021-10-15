@@ -7,6 +7,7 @@ from datetime import datetime
 import logging
 import importlib
 import constant
+import tabula
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
 db_module_name = 'db-utility'
@@ -81,9 +82,11 @@ def main():
                     if part.get_content_type() == "application/pdf":
                         filename = part.get_filename() 
                         hasAttachment = True
-                        pdf_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.pdf';
-                        sv_path = os.path.join('./', pdf_file_name) 
+                        pdf_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.pdf'
+                        json_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.json'
 
+                        sv_path = os.path.join('./', pdf_file_name) 
+                        json_file_path = os.path.join('./', json_file_name) 
                         if filename is not None: 
                             counter = counter + 1
                             if not os.path.isfile(sv_path): 
@@ -91,7 +94,8 @@ def main():
                                     fp = open(sv_path, 'wb') 
                                     fp.write(part.get_payload(decode=True)) 
                                     fp.close() 
-                                    create_po_master(email_from,'',utility.get_todays_date(),messageId,pdf_file_name,sv_path,hasAttachment)
+                                    convert_pdf_to_json(sv_path,json_file_path)
+                                    create_po_master(email_from,'',utility.get_todays_date(),messageId,pdf_file_name,sv_path,hasAttachment,json_file_name,json_file_path)
                                 except OSError as error:
                                     logger.info("Error:{a}".format(a=error))
                             else:
@@ -109,13 +113,23 @@ def main():
         logger.error("Runtime Error:{a}".format(a=error))
         exit(1)
 
-def create_po_master(email_id,email_subject,email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment):
+def create_po_master(email_id,email_subject,email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment,json_file_name,json_file_path):
     try:
         print(email_id)
-        db_utility.create_po(email_id,'email_subject',email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment)
+        db_utility.create_po(email_id,'email_subject',email_received_at,message_id,pdf_file_name,pdf_file_path,has_attachment,json_file_name,json_file_path)
     except RuntimeError as error:
         print(f"Runtime Error: {error}")
         logger.error("Runtime Error:{a}".format(a=error))
+        exit(1)
+
+def convert_pdf_to_json(pdfFileName, jsonFileName):
+    try:
+        logger.info('PDF File name:{a}'.format(a=pdfFileName))
+        logger.info('JSON File name:{a}'.format(a=jsonFileName))
+        tabula.convert_into(pdfFileName, jsonFileName, output_format="json", pages="all", lattice = True, stream = False)
+    except RuntimeError as error:
+        print(f"Error in converting pdf to json: {error}")
+        logger.error("Error in converting pdf to json:{a}".format(a=error))
         exit(1)
 
 
