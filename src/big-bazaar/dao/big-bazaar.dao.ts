@@ -1,5 +1,6 @@
 import debug from 'debug';
 import fs from 'fs';
+import path from 'path';
 import _ from 'underscore';
 import { IBigBazaarPurchaseOrderDto } from '../dto/interface/big-bazaar.purchase.order.dto';
 import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto';
@@ -19,17 +20,16 @@ class BigBazaarDAO {
         log('Created new instance of BigBazaarDAO');
     }
 
-    async processAndCreatePO(jsonFile: string): Promise<IBigBazaarPurchaseOrderDto>{
-        const fileName = `${__dirname}/${jsonFile}`;
-        //db.query()
+    async processAndCreatePO(objPurchaseOrder: IBigBazaarPurchaseOrderDto): Promise<IBigBazaarPurchaseOrderDto>{
         try {
             console.clear();
+           
             let listOfTableHeader: any = null;
             let listOfTableRow: any = [];
-            const fileBuffer: any = fs.readFileSync(fileName);
+            const fileBuffer: any = fs.readFileSync(objPurchaseOrder.JsonFile);
             const rawPOResult = JSON.parse(fileBuffer);
 
-            if (rawPOResult.length >= 2) {
+            if (fileBuffer && rawPOResult.length >= 2) {
                 // header
                 for (let index = 0; index < rawPOResult[2].data.length; index++) {
                     const item = rawPOResult[2].data[index];
@@ -56,7 +56,7 @@ class BigBazaarDAO {
             }
             //
             //console.log(bigBazarConfig);
-            const objPurchaseOrder = new BigBazaarPurchaseOrderDto();
+            //const objPurchaseOrder = new BigBazaarPurchaseOrderDto();
             objPurchaseOrder.ItemsHeader =  listOfTableHeader;
             objPurchaseOrder.ItemColumnHeaders = this.getPOHeaders(listOfTableHeader);
            // this.getHeaderIndexByName(listOfTableHeader, 'Article EAN');
@@ -85,13 +85,13 @@ class BigBazaarDAO {
             });
             // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
-            //
+            // update database
             new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
             //
             return objPurchaseOrder;
         }
         catch (error) {
-            throw new Error(`Error in processing Purchase Order - ${jsonFile}`);
+            throw new Error(`Error in processing Purchase Order - ${objPurchaseOrder.JsonFile}`);
         }
     }
 

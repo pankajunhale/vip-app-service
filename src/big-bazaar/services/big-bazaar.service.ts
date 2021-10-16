@@ -7,10 +7,10 @@ import { FilterPurchaseOrderRequest } from '../../common/filter.purchase-order';
 
 class BigBazaarService implements CRUD {
 
-    async create(resource: IBigBazaarPurchaseOrderDto) {
+    async create(model: IBigBazaarPurchaseOrderDto) {
         const jsonFile = `BB-PO-1.json`;
         try {
-            return bigBazaarDao.processAndCreatePO(jsonFile);
+            return bigBazaarDao.processAndCreatePO(model);
         } catch (error) {
             throw new Error(`Error in processing Purchase Order - ${jsonFile}`);
         }

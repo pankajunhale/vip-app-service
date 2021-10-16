@@ -7,6 +7,7 @@ import { CommonRoutesConfig } from './common/common.routes.config';
 import { BigBazaarRoutes } from './big-bazaar/big-bazaar.routes.config';
 import debug from 'debug';
 import cron from 'node-cron';
+import bigBazaarController from './big-bazaar/controllers/big-bazaar.controller';
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
@@ -44,4 +45,6 @@ server.listen(port, () => {
     console.log(runningMessage);
 });
 
-cron.schedule('* * * * *', () => {console.log("Task is running every minute " + new Date())});
+cron.schedule('* * * * *',() =>{
+    bigBazaarController.processPurchaseOrderJob();
+});

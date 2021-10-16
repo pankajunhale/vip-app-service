@@ -18,7 +18,11 @@ export interface IBigBazaarPurchaseOrderDto {
     ConditonType: string;
     ItemsHeader: Array<string>;
     Items: Array<IBigBazaarPurchaseOrderItemsDto>;
-    ItemColumnHeaders: Array<IBigBazaarPurchaseOrderItemsHeader>
+    ItemColumnHeaders: Array<IBigBazaarPurchaseOrderItemsHeader>;
+    MesageId: number;
+    IsPdfConvertedToJson: boolean;
+    JsonFile: string;
+    JsonFilePath: string;
 }
 
 //SAP Mat code	Article EAN	Article Code	Description of Goods	Quantity	UoM	Storage Location	Plant	Order reason	Condition Type	Taxable Amount

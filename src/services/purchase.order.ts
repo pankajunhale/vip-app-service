@@ -23,10 +23,18 @@ export class PurchaseOrderDb {
   }
 
   async updatePurchaseOrderMaster(poData: IBigBazaarPurchaseOrderDto) {
-    this.getAllOpenPurchaseOrders();
-    poData.Items.map((item) => {
-      this.addPurchaseOrderDetails(poData,item);
-    })
+    try {
+      // update po master
+      if(await this.updatePurchaseOrderMasterInfo(poData) > 0 ) {
+        poData.Items.map((item) => {
+          this.addPurchaseOrderDetails(poData,item);
+        });
+      }
+    } catch (error) {
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+   
   }
 
   async addPurchaseOrderDetails(poMaster: IBigBazaarPurchaseOrderDto, poItem: IBigBazaarPurchaseOrderItemsDto) {
@@ -89,9 +97,9 @@ export class PurchaseOrderDb {
             }
           )`
         );
-        let message = 'Error in creating quote';
+        let message = 'Error in creating purchase order details';
         if (result.affectedRows) {
-          message = 'Quote created successfully';
+          message = 'PO Items created successfully';
         }
         return { message };
       }
@@ -105,7 +113,9 @@ export class PurchaseOrderDb {
   }
 
   async getAllOpenPurchaseOrders() {
-    const selectQuery = `SELECT id, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
+    const selectQuery = `SELECT id, message_id, purchase_order_number, 
+    json_file_name, json_file_path,
+    is_pdf_converted_to_json, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
     FROM purchase_order_master WHERE DATE(created_at) = CURDATE() 
     AND purchase_order_number IS NULL`;
 
@@ -113,5 +123,26 @@ export class PurchaseOrderDb {
     const data = this.helper.emptyOrRows(rows);
     console.log(data);
     return data;
+  }
+
+  async updatePurchaseOrderMasterInfo(poMaster: IBigBazaarPurchaseOrderDto) {
+    try {
+      const result = await this.db.query(
+        `UPDATE purchase_order_master 
+          SET
+            purchase_order_number = ${poMaster.PurchaseOrderNumber},
+            is_json_parsed = true, 
+            updated_at = CURDATE()
+          WHERE
+            id = ${poMaster.Id}
+        `);
+        if (!result.affectedRows) {
+          throw new Error("Error in updating PO Master with id:" + poMaster.Id);
+        }
+        return result.affectedRows;
+    } catch (error) {
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
   }
 }

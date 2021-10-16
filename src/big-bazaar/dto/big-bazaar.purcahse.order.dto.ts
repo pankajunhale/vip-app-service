@@ -20,7 +20,10 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     ItemsHeader: string[];
     Items: IBigBazaarPurchaseOrderItemsDto[];
     ItemColumnHeaders: Array<IBigBazaarPurchaseOrderItemsHeader>
-    
+    MesageId: number;
+    IsPdfConvertedToJson: boolean;
+    JsonFile: string;
+    JsonFilePath: string;
     constructor() {
         this.Id = '';
         this.PurchaseOrderNumber= '';
@@ -39,6 +42,10 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
         this.ItemsHeader = [];
         this.ItemColumnHeaders = [];
         this.Items = [];
+        this.MesageId = 0;
+        this.IsPdfConvertedToJson = false;
+        this.JsonFile = '';
+        this.JsonFilePath = '';
         this.init();
     }
 
