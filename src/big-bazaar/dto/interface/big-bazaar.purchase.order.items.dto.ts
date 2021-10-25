@@ -1,4 +1,6 @@
 export interface IBigBazaarPurchaseOrderItemsDto {
+    Id: number;
+    PurchaseOrderMasterId: number;
     SAPMatCode: string;
     ArticleEAN: string;
     ArticleCode: string;

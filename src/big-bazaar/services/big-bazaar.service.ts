@@ -22,8 +22,6 @@ class BigBazaarService implements CRUD {
 
     async readById(id: string) {
         const obj = new BigBazaarPurchaseOrderDto();
-        obj.Id = shortid.generate();
-        obj.PurchaseOrderNumber = "4527230340";
         return obj;
     }
 

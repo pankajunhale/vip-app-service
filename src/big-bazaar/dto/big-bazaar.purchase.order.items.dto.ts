@@ -1,6 +1,8 @@
 import { IBigBazaarPurchaseOrderItemsDto } from "./interface/big-bazaar.purchase.order.items.dto";
 
 export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderItemsDto {
+    Id: number;
+    PurchaseOrderMasterId: number;
     SAPMatCode: string;
     ArticleEAN: string;
     ArticleCode: string;
@@ -18,6 +20,8 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
     TotalAmount: string;
 
     constructor() {
+        this.Id = 0;
+        this.PurchaseOrderMasterId = 0;
         this.SAPMatCode= "";
         this.ArticleEAN= "";
         this.ArticleCode = "";
@@ -34,6 +38,7 @@ export class BigBazaarPurchaseOrderItemsDto implements IBigBazaarPurchaseOrderIt
         this.CGST_Amount = "";
         this.TotalAmount = "";
     }
+    
     
 
 }

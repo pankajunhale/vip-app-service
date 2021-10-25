@@ -2,7 +2,7 @@ import { IBigBazaarPurchaseOrderItemsDto } from "./big-bazaar.purchase.order.ite
 import { IBigBazaarPurchaseOrderItemsHeader } from "./big-bazaar.purchase.order.items.header";
 
 export interface IBigBazaarPurchaseOrderDto {
-    Id: string;
+    Id: number;
     PurchaseOrderNumber: string;
     SoldToParty: string;
     ShipToParty: string;

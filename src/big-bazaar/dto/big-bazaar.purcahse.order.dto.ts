@@ -3,7 +3,7 @@ import { IBigBazaarPurchaseOrderItemsDto } from "./interface/big-bazaar.purchase
 import { IBigBazaarPurchaseOrderItemsHeader } from "./interface/big-bazaar.purchase.order.items.header";
 
 export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
-    Id: string;
+    Id: number;
     PurchaseOrderNumber: string;
     SoldToParty: string;
     ShipToParty: string;
@@ -24,8 +24,11 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     IsPdfConvertedToJson: boolean;
     JsonFile: string;
     JsonFilePath: string;
+    PurchaseOrderMasterId: number;
+
     constructor() {
-        this.Id = '';
+        this.Id = 0;
+        this.PurchaseOrderMasterId = 0;
         this.PurchaseOrderNumber= '';
         this.SoldToParty= '';
         this.ShipToParty= '';

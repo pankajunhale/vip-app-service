@@ -55,19 +55,26 @@ class BigBazaarController {
         // get all open po
         console.log('started processPurchaseOrderJob(): ')
         const db = new PurchaseOrderDb();
-        db.getAllOpenPurchaseOrders().then((response:any) => {
-           response.map((item: any) => {
-            const directoryPath = path.join(__dirname, '../../../automation/download-po');
-            const fileName = `${directoryPath}\\${item.json_file_name}`;
-                if(fs.existsSync(fileName)) {
-                    console.log(fileName,'exist');
-                    item.json_file_name = fileName; // new path
-                    this.processPurchaseOrder(item);
-                }
-                else {
-                    console.log('not exist');
-                }
-           })
+        //const d =  await db.getAllOpenPurchaseOrders();
+        await db.getAllOpenPurchaseOrders().then((response:any) => {
+            if(response && response.length > 0) {
+                response.map((item: any) => {
+                    const directoryPath = path.join(__dirname, '../../../automation/download-po');
+                    const fileName = `${directoryPath}\\${item.json_file_name}`;
+                        if(fs.existsSync(fileName)) {
+                            console.log(fileName,'exist');
+                            item.json_file_name = fileName; // new path
+                            this.processPurchaseOrder(item);
+                        }
+                        else {
+                            console.log('not exist');
+                        }
+                   });
+            }
+            else {
+                console.log('There are no Jobs to process!');
+            }
+           
         })
 
     }
@@ -76,12 +83,15 @@ class BigBazaarController {
         try {
             const objPOMaster = new BigBazaarPurchaseOrderDto();
             objPOMaster.Id = item.id;
+            objPOMaster.PurchaseOrderMasterId = item.purchase_order_master_id;
             objPOMaster.MesageId = item.message_id;
             objPOMaster.IsPdfConvertedToJson = item.is_pdf_converted_to_json;
             objPOMaster.JsonFile = item.json_file_name;
             objPOMaster.JsonFilePath = item.json_file_path;
-            const result = await bigBazaarService.create(objPOMaster);
+            await bigBazaarService.create(objPOMaster);
         } catch (error) {
+            const {message} = error as unknown as any;
+            throw new Error("Error in processing your request:" + message);
         }
     }
 }

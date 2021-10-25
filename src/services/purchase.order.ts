@@ -25,11 +25,11 @@ export class PurchaseOrderDb {
   async updatePurchaseOrderMaster(poData: IBigBazaarPurchaseOrderDto) {
     try {
       // update po master
-      if(await this.updatePurchaseOrderMasterInfo(poData) > 0 ) {
+      await this.updatePurchaseOrderMasterInfo(poData).then((value) => {
         poData.Items.map((item) => {
           this.addPurchaseOrderDetails(poData,item);
         });
-      }
+      })
     } catch (error) {
       const {message} = error as unknown as any;
       throw new Error("Error in processing your request:" + message);
@@ -39,11 +39,13 @@ export class PurchaseOrderDb {
 
   async addPurchaseOrderDetails(poMaster: IBigBazaarPurchaseOrderDto, poItem: IBigBazaarPurchaseOrderItemsDto) {
     try {
+      return new Promise((resolve, reject) => {
       poItem.ArticleCode = poItem.ArticleCode.replace('\n', '');
       poItem.ArticleEAN = poItem.ArticleEAN.replace('\n', '');
       if(poItem.ArticleCode !== 'Article Code' && poItem.ArticleEAN !== 'Article EAN') {
-        const result = await this.db.query(
+        this.db.getConnectionPool().query(
           `INSERT INTO purchase_order_details (
+            purchase_order_master_id,
             order_type, 
             sales_org, 
             distributed_channel,
@@ -70,6 +72,7 @@ export class PurchaseOrderDb {
            ) VALUES (
             ${
               [
+                `'${poMaster.Id}'`,
                 `'${poMaster.OrderType}'`,
                 `'${poMaster.SalesOrg}'`,
                 `'${poMaster.DistChannel}'`,
@@ -96,14 +99,15 @@ export class PurchaseOrderDb {
               ]
             }
           )`
-        );
-        let message = 'Error in creating purchase order details';
-        if (result.affectedRows) {
-          message = 'PO Items created successfully';
+        ),((err: any,results: any) => {
+          if(err){
+            return reject(err);
+          }
+           console.log(results);      
+           return resolve(results);
+          });
         }
-        return { message };
-      }
-     
+      })
     } catch (error) {
       console.log(error, poItem);
       const {message} = error as unknown as any;
@@ -113,33 +117,46 @@ export class PurchaseOrderDb {
   }
 
   async getAllOpenPurchaseOrders() {
-    const selectQuery = `SELECT id, message_id, purchase_order_number, 
-    json_file_name, json_file_path,
-    is_pdf_converted_to_json, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
-    FROM purchase_order_master WHERE DATE(created_at) = CURDATE() 
-    AND purchase_order_number IS NULL`;
-
-    const rows = await this.db.query(selectQuery);
-    const data = this.helper.emptyOrRows(rows);
-    console.log(data);
-    return data;
+    try {
+      return new Promise((resolve, reject) => {
+        const selectQuery = `SELECT id,message_id, purchase_order_number, 
+        json_file_name, json_file_path,
+        is_pdf_converted_to_json, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
+        FROM purchase_order_master WHERE DATE(created_at) = CURDATE() 
+        AND purchase_order_number IS NULL`;
+        this.db.getConnectionPool().query(selectQuery,(err,results) => {
+          if(err){
+            return reject(err);
+          }
+           console.log(results);      
+           return resolve(results);
+        });
+      });
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
   }
 
   async updatePurchaseOrderMasterInfo(poMaster: IBigBazaarPurchaseOrderDto) {
     try {
-      const result = await this.db.query(
-        `UPDATE purchase_order_master 
-          SET
-            purchase_order_number = ${poMaster.PurchaseOrderNumber},
-            is_json_parsed = true, 
-            updated_at = CURDATE()
-          WHERE
-            id = ${poMaster.Id}
-        `);
-        if (!result.affectedRows) {
-          throw new Error("Error in updating PO Master with id:" + poMaster.Id);
-        }
-        return result.affectedRows;
+      return new Promise((resolve, reject) => {
+        this.db.getConnectionPool().query(
+          `UPDATE purchase_order_master 
+            SET
+              purchase_order_number = ${poMaster.PurchaseOrderNumber},            
+              is_json_parsed = true, 
+              updated_at = CURDATE()
+            WHERE
+              id = ${poMaster.Id}
+          `,(err,results) => {
+          if (err) {
+            throw new Error("Error in updating PO Master with id:" + poMaster.Id);
+          }
+          return resolve(results.affectedRows);
+        })
+      })
+      
     } catch (error) {
       const {message} = error as unknown as any;
       throw new Error("Error in processing your request:" + message);

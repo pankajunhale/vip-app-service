@@ -34,7 +34,8 @@ if (!process.env.DEBUG) {
 app.use(expressWinston.logger(loggerOptions));
 
 routes.push(new BigBazaarRoutes(app));
-const runningMessage = `Server running at port:${port}`;
+const apiUrl = process.env.API_URL
+const runningMessage = `Server running at: ${apiUrl} with port:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
     res.status(200).send(runningMessage + ' : ' + new Date())
 });

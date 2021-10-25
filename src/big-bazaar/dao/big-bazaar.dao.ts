@@ -28,7 +28,7 @@ class BigBazaarDAO {
             let listOfTableRow: any = [];
             const fileBuffer: any = fs.readFileSync(objPurchaseOrder.JsonFile);
             const rawPOResult = JSON.parse(fileBuffer);
-
+            console.log(rawPOResult);
             if (fileBuffer && rawPOResult.length >= 2) {
                 // header
                 for (let index = 0; index < rawPOResult[2].data.length; index++) {
@@ -64,7 +64,7 @@ class BigBazaarDAO {
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
                 const obj = new BigBazaarPurchaseOrderItemsDto();
-                obj.ArticleEAN = this.getArticleEAN(item[0]);
+                obj.ArticleEAN = this.getArticleEAN(item[0]);//
                 obj.ArticleCode = this.getArticleCode(item[0]);
                 obj.DescriptionOfGoods = this.getDescriptionOfGoods(item[0]);
                 obj.HSN = this.getHSN(item[1]);
