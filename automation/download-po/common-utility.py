@@ -48,6 +48,9 @@ def get_sent_since_query():
     if month == 10:
         month_str = 'OCT'
         date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
+    if month == 11:
+        month_str = 'NOV'
+        date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
 
     query = '({a} "{b}")'.format(a=constant.SENT_SINCE_QUERY,b=date_str)
     return query

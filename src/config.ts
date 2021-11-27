@@ -10,12 +10,8 @@ export class DBConfig {
         db: {
           host: 'localhost',
           user: 'root',
-          password: 'SQL123456',
+          password: 'vip@123456',
           database: 'vip-po-automation-dev-db',
-          waitForConnections: true,
-          connectionLimit: 2,
-          queueLimit: 0,
-          debug: false,
           port: 3306
         },
         listPerPage:10
