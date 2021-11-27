@@ -38,7 +38,7 @@ class BigBazaarDAO {
                     }
                 }
                 //console.log(listOfTableHeader);
-
+                this.newMappgingLogic(rawPOResult);
                 _.map(rawPOResult, (item) => {
                     if (item['extraction_method'] === 'lattice') {
                         _.map(item['data'], (itemInner) => {
@@ -86,7 +86,7 @@ class BigBazaarDAO {
             // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
             // update database
-            new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
+            //new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
             //
             return objPurchaseOrder;
         }
@@ -331,6 +331,261 @@ class BigBazaarDAO {
             totalAmount = item;
         }
         return totalAmount;
+    }
+
+    private mapperInfo() {
+        const mapperData = [
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952602328,
+                "OutputFieldId": 3,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Future Retail Limited. Formerly known as : Bharti Retail Ltd",
+                "OutputFieldName": "Sold to party",
+                "IsHeader": true,
+                "IsHeaderDisplayText": "Y",
+                "GroupName": "0",
+                "GroupNameDisplayText": "NA",
+                "MapperIndex": "0-1-0"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952614127,
+                "OutputFieldId": 1,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "P.O. Number",
+                "OutputFieldName": "Purchase Order Number",
+                "IsHeader": true,
+                "IsHeaderDisplayText": "Y",
+                "GroupName": "0",
+                "GroupNameDisplayText": "NA",
+                "MapperIndex": "0-2-2"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952647846,
+                "OutputFieldId": 2,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Date",
+                "OutputFieldName": "Purchase Order Date",
+                "IsHeader": true,
+                "IsHeaderDisplayText": "Y",
+                "GroupName": "0",
+                "GroupNameDisplayText": "NA",
+                "MapperIndex": "0-2-2"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952671596,
+                "OutputFieldId": 4,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Delivery &",
+                "OutputFieldName": "Ship to party",
+                "IsHeader": true,
+                "IsHeaderDisplayText": "Y",
+                "GroupName": "0",
+                "GroupNameDisplayText": "NA",
+                "MapperIndex": "0-4-0"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952691104,
+                "OutputFieldId": 0,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Article  EAN",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952715519,
+                "OutputFieldId": 7,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Article Code",
+                "OutputFieldName": "SKU",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952731824,
+                "OutputFieldId": 6,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Description of Goods",
+                "OutputFieldName": "Description",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952746047,
+                "OutputFieldId": 15,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "HSN",
+                "OutputFieldName": "HSN",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-6-1"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952761575,
+                "OutputFieldId": 18,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "MRP",
+                "OutputFieldName": "MRP",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-6-2"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952773152,
+                "OutputFieldId": 16,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Qty",
+                "OutputFieldName": "Quantity",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-6-3"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952787648,
+                "OutputFieldId": 17,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "UOM",
+                "OutputFieldName": "UoM",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-6-4"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952808016,
+                "OutputFieldId": 9,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Taxable Value",
+                "OutputFieldName": "Taxable Value",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-8"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952817280,
+                "OutputFieldId": 10,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "SGST Rate",
+                "OutputFieldName": "SGST Rate",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-9"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952826704,
+                "OutputFieldId": 11,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "SGST Amt",
+                "OutputFieldName": "SGST Amount",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-9"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952838640,
+                "OutputFieldId": 12,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "CGST Rate",
+                "OutputFieldName": "CGST Rate",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-10"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952851664,
+                "OutputFieldId": 12,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "CGST Amt",
+                "OutputFieldName": "CGST Rate",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-10"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952871632,
+                "OutputFieldId": 14,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Total Amt",
+                "OutputFieldName": "Total Amount",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-11"
+            },
+            {
+                "EmtpyGroupName": "NA",
+                "Id": 1637952895716,
+                "OutputFieldId": 5,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Article  EAN",
+                "OutputFieldName": "EAN",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+            }
+        ];
+        return mapperData;
+    }
+
+    private newMappgingLogic(rawPOResult: any) {
+        _.map(rawPOResult, (item, i: number) => {
+            if (item['extraction_method'] === 'lattice') {
+                _.map(item['data'], (itemInner, j: number) => {
+                    let tempArray: Array<string> = [];
+                    _.map(itemInner, (row, k: number) => {
+                        if (row['text']) {
+                          console.log(`${i}-${j}-${k}`);
+                        }
+                    });
+                });
+            }
+        });
+        return;
     }
 
    
