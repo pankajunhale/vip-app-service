@@ -24,13 +24,14 @@ class MyHelper {
     }
 
     filterRawJsonListBySearchTerm(rawJsonlist: Array<string>, searchTerm: string): string {
-        const result = _.filter(rawJsonlist, (item: any) => {
+        let result = '';
+        _.map(rawJsonlist, (item: any,index: number) => {
             console.log(item);
-            if(item[0].includes(searchTerm)) {
-                return item[0];
+            if(item.includes(searchTerm)) {
+                result = rawJsonlist[index + 1];
             }
         });
-        return result[0];
+        return result;
     }
 
     

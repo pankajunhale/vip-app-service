@@ -28,7 +28,7 @@ class BigBazaarDAO {
             let listOfTableRow: any = [];
             const fileBuffer: any = fs.readFileSync(objPurchaseOrder.JsonFile);
             const rawPOResult = JSON.parse(fileBuffer);
-            console.log(rawPOResult);
+            //console.log(rawPOResult);
             if (fileBuffer && rawPOResult.length >= 2) {
                 // header
                 for (let index = 0; index < rawPOResult[2].data.length; index++) {
@@ -38,7 +38,6 @@ class BigBazaarDAO {
                     }
                 }
                 //console.log(listOfTableHeader);
-                this.newMappgingLogic(rawPOResult);
                 _.map(rawPOResult, (item) => {
                     if (item['extraction_method'] === 'lattice') {
                         _.map(item['data'], (itemInner) => {
@@ -60,7 +59,7 @@ class BigBazaarDAO {
             objPurchaseOrder.ItemsHeader =  listOfTableHeader;
             objPurchaseOrder.ItemColumnHeaders = this.getPOHeaders(listOfTableHeader);
            // this.getHeaderIndexByName(listOfTableHeader, 'Article EAN');
-            this.setPurchaseOrderHeader(objPurchaseOrder,listOfTableRow);
+            this.setPurchaseOrderHeader(objPurchaseOrder,rawPOResult);
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
                 const obj = new BigBazaarPurchaseOrderItemsDto();
@@ -88,6 +87,7 @@ class BigBazaarDAO {
             // update database
             //new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
             //
+            console.log(objPurchaseOrder);
             return objPurchaseOrder;
         }
         catch (error) {
@@ -112,11 +112,13 @@ class BigBazaarDAO {
         return new PurchaseOrderDb().getMultiple(page);
     }
 
-    private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawJsonlist: string[]) {
-        objHeader.PurchaseOrderNumber = this.getPurchaseOrderNumber(rawJsonlist);
-        objHeader.PurchaseOrderDate = this.getPurchaseOrderDate(rawJsonlist);
-        objHeader.SoldToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY,1)
-        objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
+    private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawPOResult: string[]) {
+        const headerList = this.getPurchaseOrderHeaderLabelList();
+        const matchedPurchaseOrderNumberText = this.newMappgingLogic(rawPOResult, this.getPdfMapperByOutputFieldName('Purchase Order Number',headerList));
+        objHeader.PurchaseOrderNumber = this.getPurchaseOrderNumber(matchedPurchaseOrderNumberText, 'P.O. Number', '\r');
+        // objHeader.PurchaseOrderDate = this.getPurchaseOrderDate(rawJsonlist);
+        // objHeader.SoldToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY,1)
+        // objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
     }
 
 
@@ -157,13 +159,14 @@ class BigBazaarDAO {
         return data;
     }
 
-    private getPurchaseOrderNumber(list: Array<string>): string  {
+    private getPurchaseOrderNumber(matchedData: string, inputFieldName: string, splitBy: string): string  {
         let poNumber = '0';
-        const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.PO_NUMBER, 1);
-        if(data && data[0]) {
-            const splitResult = myHelper.splitString(data[0], '\r');
+        //  "MapperIndex": "0-2-2"
+       // const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.PO_NUMBER, 1);
+        if(matchedData) {
+            const splitResult = myHelper.splitString(matchedData, splitBy);
             if(splitResult && splitResult.length > 0) {
-                poNumber = splitResult[1].replace(':','');
+                poNumber = myHelper.filterRawJsonListBySearchTerm(splitResult, inputFieldName);
             }
         }
         return poNumber;
@@ -333,7 +336,30 @@ class BigBazaarDAO {
         return totalAmount;
     }
 
-    private mapperInfo() {
+    private getPurchaseOrderHeaderLabelList() {
+        const mapper = this.findMapperInfo();
+        const headerList = mapper.filter((item) => {
+            return (item.IsHeader);
+        });
+        return headerList;
+    }
+
+    private getPurchaseOrderDetailsLabelList() {
+        const mapper = this.findMapperInfo();
+        const itemList = mapper.filter((item) => {
+            return (!item.IsHeader);
+        });
+        return itemList;
+    }
+
+    private getPdfMapperByOutputFieldName(fieldName: string, list: Array<any>) {
+        const mapperObject = list.find((item) => {
+            return (item.OutputFieldName === fieldName);
+        });
+        return mapperObject;
+    }
+
+    private findMapperInfo() {
         const mapperData = [
             {
                 "EmtpyGroupName": "NA",
@@ -572,20 +598,37 @@ class BigBazaarDAO {
         return mapperData;
     }
 
-    private newMappgingLogic(rawPOResult: any) {
-        _.map(rawPOResult, (item, i: number) => {
-            if (item['extraction_method'] === 'lattice') {
-                _.map(item['data'], (itemInner, j: number) => {
-                    let tempArray: Array<string> = [];
-                    _.map(itemInner, (row, k: number) => {
-                        if (row['text']) {
-                          console.log(`${i}-${j}-${k}`);
-                        }
-                    });
+    private newMappgingLogic(rawPOResult: any, mapper: any) {
+        let matchedValue = '';
+        let index_i: number;
+        let index_j: number;
+        let index_k: number;
+        if(mapper) {
+            const splitResult = myHelper.splitString(mapper.MapperIndex,'-');
+            if(splitResult && splitResult.length === 3) { //TBD
+                index_i = parseInt(splitResult[0]);
+                index_j = parseInt(splitResult[1]);
+                index_k = parseInt(splitResult[2]);
+                _.map(rawPOResult, (item, i: number) => {
+                    if (item['extraction_method'] === 'lattice') {
+                        _.map(item['data'], (itemInner, j: number) => {
+                            _.map(itemInner, (row, k: number) => {
+                                if (row['text']) {
+                                    if (i === index_i && j === index_j && k === index_k) {
+                                        matchedValue = row['text'];
+                                        console.log(`${i}-${j}-${k}-${matchedValue}`);                                
+                                    }
+                                    else {
+                                        console.log('not matching')
+                                    }
+                                }
+                            });
+                        });
+                    }
                 });
             }
-        });
-        return;
+        }
+        return matchedValue;
     }
 
    
