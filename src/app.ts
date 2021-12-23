@@ -1,10 +1,12 @@
-import express from 'express';
+import express, { urlencoded } from 'express';
 import * as http from 'http';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
 import cors from 'cors';
 import { CommonRoutesConfig } from './common/common.routes.config';
 import { BigBazaarRoutes } from './big-bazaar/big-bazaar.routes.config';
+import { CustomerRoutes } from './customer/customer.routes.config';
+import { MapperManagerRoutes } from './mapper-manager/mapper-manager.routes.config';
 import debug from 'debug';
 import cron from 'node-cron';
 import bigBazaarController from './big-bazaar/controllers/big-bazaar.controller';
@@ -16,6 +18,7 @@ const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug('app');
 
 app.use(express.json());
+app.use(urlencoded({ extended: false }));
 app.use(cors());
 
 const loggerOptions: expressWinston.LoggerOptions = {
@@ -34,7 +37,10 @@ if (!process.env.DEBUG) {
 app.use(expressWinston.logger(loggerOptions));
 
 routes.push(new BigBazaarRoutes(app));
-const apiUrl = process.env.API_URL
+routes.push(new CustomerRoutes(app));
+routes.push(new MapperManagerRoutes(app));
+
+const apiUrl = process.env.API_URL;
 const runningMessage = `Server running at: ${apiUrl} with port:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
     res.status(200).send(runningMessage + ' : ' + new Date())

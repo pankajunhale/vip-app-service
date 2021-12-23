@@ -42,6 +42,7 @@ export class PurchaseOrderDb {
       return new Promise((resolve, reject) => {
       poItem.ArticleCode = poItem.ArticleCode.replace('\n', '');
       poItem.ArticleEAN = poItem.ArticleEAN.replace('\n', '');
+      // TBD header get added when PO items more than 1 page...
       if(poItem.ArticleCode !== 'Article Code' && poItem.ArticleEAN !== 'Article EAN') {
         this.db.getConnectionPool().query(
           `INSERT INTO purchase_order_details (

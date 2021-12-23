@@ -1,7 +1,7 @@
 import debug from 'debug';
 import fs from 'fs';
 import path from 'path';
-import _ from 'underscore';
+import _, { map } from 'underscore';
 import { IBigBazaarPurchaseOrderDto } from '../dto/interface/big-bazaar.purchase.order.dto';
 import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto';
 import myHelper from '../../common/my-helper';
@@ -60,32 +60,64 @@ class BigBazaarDAO {
             objPurchaseOrder.ItemColumnHeaders = this.getPOHeaders(listOfTableHeader);
            // this.getHeaderIndexByName(listOfTableHeader, 'Article EAN');
             this.setPurchaseOrderHeader(objPurchaseOrder,rawPOResult);
+            const purchaseOrderItemValues: Array<any> = this.getPurchaseOrderItems(listOfTableRow);
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
-            _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any) => {
+            _.map(purchaseOrderItemValues, (item: any) => {
                 const obj = new BigBazaarPurchaseOrderItemsDto();
-                obj.ArticleEAN = this.getArticleEAN(item[0]);//
-                obj.ArticleCode = this.getArticleCode(item[0]);
-                obj.DescriptionOfGoods = this.getDescriptionOfGoods(item[0]);
-                obj.HSN = this.getHSN(item[1]);
-                obj.MRP = this.getMRP(item[2]);
-                obj.Quantity = this.getQuantity(item[3]);
-                obj.UnitOfMeasure = this.getUoM(item[4]);
-                obj.BasicCost = this.getBasicCost(item[5]);
-                obj.TaxableAmount = this.getTaxableAmount(item[6]);
-                //state-gst
-                obj.SGST_Amount = this.getSGST_Amount(item[7]);
-                obj.SGST_Rate = this.getSGST_Rate(item[7]);
-                //central-gst
-                obj.CGST_Amount = this.getSGST_Amount(item[8]);
-                obj.CGST_Rate = this.getSGST_Rate(item[8]);
-                obj.TotalAmount = this.getTotalAmount(item[9]);
-
+                _.map(item, (itemInner: any) => {
+                    if(itemInner.label === 'EAN') {
+                        obj.ArticleEAN = itemInner.value;
+                    }
+                    if(itemInner.label === 'SKU') {
+                        obj.ArticleCode = itemInner.value;
+                    }
+                    if(itemInner.label === 'Description') {
+                        obj.DescriptionOfGoods = itemInner.value;
+                    }
+                    if(itemInner.label === 'HSN') {
+                        obj.HSN = itemInner.value;
+                    }
+                    if(itemInner.label === 'MRP') {
+                        obj.MRP = itemInner.value;
+                    }
+                    if(itemInner.label === 'Quantity') {
+                        obj.Quantity = itemInner.value;
+                    }
+                    if(itemInner.label === 'UoM') {
+                        obj.UnitOfMeasure = itemInner.value;
+                    }
+                    if(itemInner.label === 'Basic Cost') {
+                        obj.BasicCost = itemInner.value;
+                    }
+                   
+                    if(itemInner.label === 'Taxable Value') {
+                        obj.TaxableAmount = itemInner.value;
+                    }
+                    //state-gst
+                    if(itemInner.label === 'SGST Amount') {
+                        obj.SGST_Amount = itemInner.value;
+                    }
+                    if(itemInner.label === 'SGST Rate') {
+                        obj.SGST_Rate = itemInner.value;
+                    }
+                    //central-gst
+                    if(itemInner.label === 'CGST Amount') {
+                        obj.CGST_Amount = itemInner.value;
+                    }
+                    if(itemInner.label === 'CGST Rate') {
+                        obj.CGST_Rate = itemInner.value;
+                    }
+                    //total amount
+                    if(itemInner.label === 'Total Amount') {
+                        obj.TotalAmount = itemInner.value;
+                    }
+                });
                 listOfItems.push(obj);
             });
             // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
             // update database
-            //new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
+            new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
             //
             console.log(objPurchaseOrder);
             return objPurchaseOrder;
@@ -114,14 +146,92 @@ class BigBazaarDAO {
 
     private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawPOResult: string[]) {
         const headerList = this.getPurchaseOrderHeaderLabelList();
-        const matchedPurchaseOrderNumberText = this.newMappgingLogic(rawPOResult, this.getPdfMapperByOutputFieldName('Purchase Order Number',headerList));
-        objHeader.PurchaseOrderNumber = this.getPurchaseOrderNumber(matchedPurchaseOrderNumberText, 'P.O. Number', '\r');
-        // objHeader.PurchaseOrderDate = this.getPurchaseOrderDate(rawJsonlist);
-        // objHeader.SoldToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SOLD_TO_PARTY,1)
-        // objHeader.ShipToParty = this.getProcessedDataByField(rawJsonlist,BBConstatnts.FIELDS_TO_MAGNIFY.SHIP_TO_PARTY,1)
+        const result: any = [];
+        map(headerList,(item: any) => {
+            const matchedText = this.newMappgingLogic(rawPOResult, this.getPdfMapperByOutputFieldName(item.OutputFieldName ,headerList));
+            const matchedValue = this.getPurchaseOrderNumber(matchedText,item.InputFieldName, '\r');
+            // TBD - All comparision by lower/upper case for both LHS & RHS
+            if(item.OutputFieldName === 'Purchase Order Number') {
+                objHeader.PurchaseOrderNumber = matchedValue;
+            }
+            if(item.OutputFieldName === 'Purchase Order Date') {
+                objHeader.PurchaseOrderDate = matchedValue;
+            }
+            if(item.OutputFieldName === 'Sold to party') {
+                objHeader.SoldToParty = matchedText; // TBD - entire text
+            }
+            if(item.OutputFieldName === 'Ship to party') {
+                objHeader.ShipToParty = matchedText; // TBD - entire text
+            }
+        });
     }
 
-
+    private getPurchaseOrderItems(listOfTableRow: string[]): Array<any> {
+        const itemDetailsList = this.getPurchaseOrderDetailsLabelList();
+        //tbd use group prop
+        const finalResult: any = [];
+        // TBD replace hardcoded 10 by finding distinct length from <itemDetailsList>
+        _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any, i: number) => {
+            const result: any = [];
+            _.map(itemDetailsList, (itemDetails: any, j: number) => {
+                const filteredLabelList = this.getItemDetailsByColumnIndex(j,itemDetailsList);
+                if(filteredLabelList && _.isArray(filteredLabelList) && filteredLabelList.length > 0) {
+                    _.map(filteredLabelList, (labelItem: any, k: number) => {
+                        const obj = {
+                            labelInfo: labelItem,
+                            value: '',
+                            label: ''
+                        };
+                        //
+                        if(labelItem.GroupName !== 'Group-1') {
+                            const splitResult = myHelper.splitString(item[j], '\r');
+                            if(splitResult && splitResult.length > 0) {
+                                obj.value = splitResult[k];
+                                obj.label = labelItem.OutputFieldName;
+                            }
+                            // TBD
+                            if(obj.label === 'Description') {
+                                obj.value = '';
+                                for (let i = 0; i < splitResult.length; i++) {
+                                    if(i >= 2) {
+                                        obj.value = `${obj.value} ${splitResult[i]}`;
+                                    }
+                                }
+                            }
+                        } 
+                        if(labelItem.GroupName === 'Group-1') {
+                            const splitResult = myHelper.splitString(item[j], '\r');
+                            if(splitResult && splitResult.length > 0) {
+                                for (let i = 0; i < splitResult.length; i++) {
+                                    obj.value = `${obj.value} ${splitResult[i]}`;
+                                }
+                                obj.label = labelItem.OutputFieldName;
+                            } 
+                        }
+                        result.push(obj);
+                    });
+                }
+            });
+            finalResult.push(result);
+        });
+        console.log(finalResult.length);
+        return finalResult;
+    }
+    // tbd save mapperindex == colIndex
+    private getItemDetailsByColumnIndex(colIndex: number, itemDetailsList: Array<any>) {
+        const result = itemDetailsList.filter((item) => {
+            const originalMapperIndex = item.MapperIndex;
+            const splitMapperIndexResult = myHelper.splitString(item.MapperIndex, '-');
+            if(splitMapperIndexResult && splitMapperIndexResult.length === 3) {
+                const tempMapperIndex = parseInt(splitMapperIndexResult[2]);
+                const computedMapperIndex = `${splitMapperIndexResult[0]}-${splitMapperIndexResult[1]}-${tempMapperIndex}`;
+                if(tempMapperIndex === colIndex){
+                    return item;
+                }
+            }
+        });
+        return result;
+    }
     private getPOHeaders(headers: Array<string>): Array<IBigBazaarPurchaseOrderItemsHeader> {
         const list = Array<BigBazaarPurchaseOrderItemsHeader>();
         const splitBy = '\r';
@@ -167,6 +277,7 @@ class BigBazaarDAO {
             const splitResult = myHelper.splitString(matchedData, splitBy);
             if(splitResult && splitResult.length > 0) {
                 poNumber = myHelper.filterRawJsonListBySearchTerm(splitResult, inputFieldName);
+                poNumber = poNumber.replace(':',''); 
             }
         }
         return poNumber;
@@ -354,7 +465,7 @@ class BigBazaarDAO {
 
     private getPdfMapperByOutputFieldName(fieldName: string, list: Array<any>) {
         const mapperObject = list.find((item) => {
-            return (item.OutputFieldName === fieldName);
+            return (item.OutputFieldName.toLowerCase() === fieldName.toLowerCase());
         });
         return mapperObject;
     }
@@ -415,162 +526,7 @@ class BigBazaarDAO {
             },
             {
                 "EmtpyGroupName": "NA",
-                "Id": 1637952691104,
-                "OutputFieldId": 0,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "Article  EAN",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-3",
-                "GroupNameDisplayText": "Group-3",
-                "MapperIndex": "0-5-0"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952715519,
-                "OutputFieldId": 7,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "Article Code",
-                "OutputFieldName": "SKU",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-3",
-                "GroupNameDisplayText": "Group-3",
-                "MapperIndex": "0-5-0"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952731824,
-                "OutputFieldId": 6,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "Description of Goods",
-                "OutputFieldName": "Description",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-3",
-                "GroupNameDisplayText": "Group-3",
-                "MapperIndex": "0-5-0"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952746047,
-                "OutputFieldId": 15,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "HSN",
-                "OutputFieldName": "HSN",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-1",
-                "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-6-1"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952761575,
-                "OutputFieldId": 18,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "MRP",
-                "OutputFieldName": "MRP",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-1",
-                "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-6-2"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952773152,
-                "OutputFieldId": 16,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "Qty",
-                "OutputFieldName": "Quantity",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-1",
-                "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-6-3"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952787648,
-                "OutputFieldId": 17,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "UOM",
-                "OutputFieldName": "UoM",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-1",
-                "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-6-4"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952808016,
-                "OutputFieldId": 9,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "Taxable Value",
-                "OutputFieldName": "Taxable Value",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-1",
-                "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-5-8"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952817280,
-                "OutputFieldId": 10,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "SGST Rate",
-                "OutputFieldName": "SGST Rate",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-2",
-                "GroupNameDisplayText": "Group-2",
-                "MapperIndex": "0-5-9"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952826704,
-                "OutputFieldId": 11,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "SGST Amt",
-                "OutputFieldName": "SGST Amount",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-2",
-                "GroupNameDisplayText": "Group-2",
-                "MapperIndex": "0-5-9"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952838640,
-                "OutputFieldId": 12,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "CGST Rate",
-                "OutputFieldName": "CGST Rate",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-2",
-                "GroupNameDisplayText": "Group-2",
-                "MapperIndex": "0-5-10"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952851664,
-                "OutputFieldId": 12,
-                "CustomerName": "Test Cust Name",
-                "InputFieldName": "CGST Amt",
-                "OutputFieldName": "CGST Rate",
-                "IsHeader": false,
-                "IsHeaderDisplayText": "N",
-                "GroupName": "Group-2",
-                "GroupNameDisplayText": "Group-2",
-                "MapperIndex": "0-5-10"
-            },
-            {
-                "EmtpyGroupName": "NA",
-                "Id": 1637952871632,
+                "Id": 1639769644961,
                 "OutputFieldId": 14,
                 "CustomerName": "Test Cust Name",
                 "InputFieldName": "Total Amt",
@@ -579,11 +535,50 @@ class BigBazaarDAO {
                 "IsHeaderDisplayText": "N",
                 "GroupName": "Group-1",
                 "GroupNameDisplayText": "Group-1",
-                "MapperIndex": "0-5-11"
-            },
-            {
+                "MapperIndex": "0-5-9"
+              },
+              {
                 "EmtpyGroupName": "NA",
-                "Id": 1637952895716,
+                "Id": 1639769688475,
+                "OutputFieldId": 12,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "CGST Rate",
+                "OutputFieldName": "CGST Rate",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-8"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639769750939,
+                "OutputFieldId": 10,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "SGST Rate",
+                "OutputFieldName": "SGST Rate",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-7"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639769863279,
+                "OutputFieldId": 9,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Taxable Value",
+                "OutputFieldName": "Taxable Value",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-6"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639769928818,
                 "OutputFieldId": 5,
                 "CustomerName": "Test Cust Name",
                 "InputFieldName": "Article  EAN",
@@ -593,7 +588,124 @@ class BigBazaarDAO {
                 "GroupName": "Group-3",
                 "GroupNameDisplayText": "Group-3",
                 "MapperIndex": "0-5-0"
-            }
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639769945330,
+                "OutputFieldId": 7,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Article Code",
+                "OutputFieldName": "SKU",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639769981944,
+                "OutputFieldId": 6,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Description of Goods",
+                "OutputFieldName": "Description",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-3",
+                "GroupNameDisplayText": "Group-3",
+                "MapperIndex": "0-5-0"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770006244,
+                "OutputFieldId": 15,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "HSN",
+                "OutputFieldName": "HSN",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-1"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770034955,
+                "OutputFieldId": 18,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "MRP",
+                "OutputFieldName": "MRP",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-2"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770058611,
+                "OutputFieldId": 16,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Qty",
+                "OutputFieldName": "Quantity",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-3"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770094217,
+                "OutputFieldId": 17,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "UOM",
+                "OutputFieldName": "UoM",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-4"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770121811,
+                "OutputFieldId": 8,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "Basic Cost",
+                "OutputFieldName": "Basic Cost",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-1",
+                "GroupNameDisplayText": "Group-1",
+                "MapperIndex": "0-5-5"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770172683,
+                "OutputFieldId": 11,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "SGST Amt",
+                "OutputFieldName": "SGST Amount",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-7"
+              },
+              {
+                "EmtpyGroupName": "NA",
+                "Id": 1639770217762,
+                "OutputFieldId": 13,
+                "CustomerName": "Test Cust Name",
+                "InputFieldName": "CGST Amt",
+                "OutputFieldName": "CGST Amount",
+                "IsHeader": false,
+                "IsHeaderDisplayText": "N",
+                "GroupName": "Group-2",
+                "GroupNameDisplayText": "Group-2",
+                "MapperIndex": "0-5-8"
+              }
         ];
         return mapperData;
     }
