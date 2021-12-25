@@ -136,7 +136,7 @@ export class CustomerDb {
           model.CountryId,
           model.StateId,
           model.CityId,
-        `${model.PurchaseOrderTemplate}`,        
+        `${model.PurchaseOrderPdfTemplate}`,        
         `${model.CustomerContactName}`,
         `${model.CustomerContactEmail}`,
         `${model.CustomerContactNumber}`,
@@ -164,7 +164,7 @@ export class CustomerDb {
       country_id,
       state_id,
       city_id,
-      purchase_order_template,                                                        
+      purchase_order_pdf_template,
       customer_contact_name,
       customer_contact_email,
       customer_contact_number,
@@ -175,8 +175,6 @@ export class CustomerDb {
      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
      return sql;
   }
-
-
-  
-  
 }
+
+//https://devdotcode.com/complete-guide-to-build-a-restful-api-with-node-js-and-express/

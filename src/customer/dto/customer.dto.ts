@@ -7,7 +7,9 @@ export class CustomerDto extends BaseCustomerDto {
     Country = '';
     ShortName = '';
     DomainName = '';
-    PurchaseOrderTemplate = '';
+    PurchaseOrderPdfTemplate = '';
+    PurchaseOrderJsonTemplate = '';
+    IsPdfConvertedToJson = false;
     State = '';
     City = '';
     CountryId = '';

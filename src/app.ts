@@ -1,4 +1,5 @@
 import express, { urlencoded } from 'express';
+import bodyParser from 'body-parser';
 import * as http from 'http';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
@@ -17,9 +18,11 @@ const port = 3030;
 const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug('app');
 
-app.use(express.json());
-app.use(urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
+//app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const loggerOptions: expressWinston.LoggerOptions = {
     transports: [new winston.transports.Console()],

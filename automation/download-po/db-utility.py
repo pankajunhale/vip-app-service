@@ -59,6 +59,36 @@ def create_po(email_id,email_subject,email_received_at,message_id,pdf_file_name,
     
     cur.close()
     db.close()
+    
+def find_all_po_templates_for_conversion():
+    db = None
+    cur = None
+    try:
+        db = mysql.connect(host=MY_HOST, user=MY_USER, password=MY_PASSWORD, database=MY_DB)
+        cur = db.cursor(prepared=True)
+        print("connected")
+        print(mysql.__version__)
+    except mysql.Error as error:
+        print(f"could not connect to MySql: {error}")
+        exit(1)
+    try:        
+        query = "SELECT id,purchase_order_pdf_template FROM customer_information where is_pdf_converted_to_json = 0 ORDER BY created_at DESC"
+        cur.execute(query)
+         # get all records
+        records = cur.fetchall()
+        print("Total number of rows in table: ", cur.rowcount)        
+        
+        print("\nPrinting each row")
+        for row in records:
+            print("Id = ", row[1], )
+        return records
+        
+    except mysql.Error as error:
+        print(f"could not insert into table purchaseorderinfo: {error}")
+        exit(1)
+    
+    cur.close()
+    db.close()
 
 if __name__ == "__main__":
     main()

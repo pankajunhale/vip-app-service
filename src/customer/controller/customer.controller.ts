@@ -1,6 +1,7 @@
 import express from 'express';
 import debug from 'debug';
 import { CustomerDb } from '../../services/customer.db';
+import { uploadFileMiddleware } from '../../services/middleware/upload';
 
 const log: debug.IDebugger = debug('app:customer-controller');
 class CustomerController {
@@ -44,13 +45,21 @@ class CustomerController {
         
     }
 
-    async createCustomer(req: express.Request, res: express.Response) {
+    async createCustomer(req: any, res: express.Response) {
         try {
-            console.log('started createCustomer(): ', req.body);
-            const customer = await new CustomerDb().insertCustomer(req.body).then((data) =>{
+            await uploadFileMiddleware(req, res);
+            if (req.file == undefined) {
+                return res.status(400).send({ message: "Please upload a file!" });
+            }
+            console.log('started createCustomer(): ', JSON.parse(req.body.model));
+            const file = req.file;
+            const model = JSON.parse(req.body.model);
+            model.PurchaseOrderPdfTemplate = `${file.originalname}`;
+            file.originalname = model.PurchaseOrderPdfTemplate;
+            const customer = await new CustomerDb().insertCustomer(model).then((data) =>{
                 return data;
             });
-            res.json({customer: customer});
+            res.json({customer: file});
         } catch (error) {
             const {message} = error as unknown as any;
             res.status(500).send('Error in processing inserting data!' + message);
