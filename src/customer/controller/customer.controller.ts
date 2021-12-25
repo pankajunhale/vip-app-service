@@ -1,5 +1,6 @@
 import express from 'express';
 import debug from 'debug';
+import fs from 'fs';
 import { CustomerDb } from '../../services/customer.db';
 import { uploadFileMiddleware } from '../../services/middleware/upload';
 
@@ -26,7 +27,7 @@ class CustomerController {
             res.status(200).send(list);
         } catch (error) {
             const {message} = error as unknown as any;
-            res.status(500).send('Error in processing inserting data!' + message);
+            res.status(500).send('Error in processing listing customer data!' + message);
         }
     }
 
@@ -69,14 +70,16 @@ class CustomerController {
 
     async updateCustomer(req: express.Request, res: express.Response) {
         try {
-            console.log('started updateCustomer(): ', req.body);
-            const customer = await new CustomerDb().updateCustomerInformaion(req.body).then((data) =>{
+            await uploadFileMiddleware(req, res);
+            const model = JSON.parse(req.body.model);
+            console.log('started updateCustomer(): ', model);
+            const customer = await new CustomerDb().updateCustomerInformaion(model).then((data) =>{
                 return data;
             });
             res.json({customer: customer});
         } catch (error) {
             const {message} = error as unknown as any;
-            res.status(500).send('Error in processing inserting data!' + message);
+            res.status(500).send('Error in updating data!' + message);
         }
         
     }

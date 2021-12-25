@@ -1,5 +1,5 @@
 import express, { urlencoded } from 'express';
-import bodyParser from 'body-parser';
+import path from 'path';
 import * as http from 'http';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
@@ -21,9 +21,8 @@ const debugLog: debug.IDebugger = debug('app');
 app.use(cors({
     origin: '*'
 }));
-//app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/static', express.static('/assets/resources'))
 const loggerOptions: expressWinston.LoggerOptions = {
     transports: [new winston.transports.Console()],
     format: winston.format.combine(

@@ -90,7 +90,7 @@ export class CustomerDb {
 
   async updateCustomerInformaion(model: any) {
     try {
-      const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      const updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
       return new Promise((resolve, reject) => {
         this.db.getConnectionPool().query(
           `UPDATE customer_information 
@@ -107,7 +107,7 @@ export class CustomerDb {
               customer_contact_number = "${model.CustomerContactNumber}",
               sender_email_id = "${model.SenderEmailId}",              
               updated_by = ${model.UpdatedBy},
-              updated_at = "${createdAt}"
+              updated_at = "${updatedAt}"
             WHERE
               id = ${model.Id}
           `,(err,results) => {

@@ -56,9 +56,9 @@ def create_po(email_id,email_subject,email_received_at,message_id,pdf_file_name,
     except mysql.Error as error:
         print(f"could not insert into table purchaseorderinfo: {error}")
         exit(1)
-    
-    cur.close()
-    db.close()
+    finally:
+        cur.close()
+        db.close()
     
 def find_all_po_templates_for_conversion():
     db = None
@@ -86,9 +86,37 @@ def find_all_po_templates_for_conversion():
     except mysql.Error as error:
         print(f"could not insert into table purchaseorderinfo: {error}")
         exit(1)
-    
-    cur.close()
-    db.close()
+    finally:
+        cur.close()
+        db.close()
+
+
+def update_po_templates_after_conversion(jsonFileName, customerId):
+    db = None
+    cur = None
+    try:
+        db = mysql.connect(host=MY_HOST, user=MY_USER, password=MY_PASSWORD, database=MY_DB)
+        cur = db.cursor(prepared=True)
+        print("connected")
+        print(mysql.__version__)
+    except mysql.Error as error:
+        print(f"could not connect to MySql: {error}")
+        exit(1)
+
+    try:
+        query = """UPDATE customer_information
+                    SET
+                        purchase_order_json_template = %s,
+                        is_pdf_converted_to_json = %s
+                    WHERE id = %s """
+        print(query)
+        val = (jsonFileName, 1, customerId)        
+        cur.execute(query, val)
+        db.commit()
+        print(cur.rowcount)
+    except mysql.Error as error:
+        print(f"could not update table customer_information after JSON conversion: {error}")
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,10 @@ export class MapperManagerRoutes extends CommonRoutesConfig {
             .route(`/mapper/create`)
             .post(mapperController.createMapper)
 
+        this.app
+            .route(`/mapper/template/:customerId/:fileName`)
+            .get(mapperController.findPurchaseOrderTemplate)
+
         return this.app;
     }
 }
