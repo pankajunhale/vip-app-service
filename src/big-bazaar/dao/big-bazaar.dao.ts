@@ -11,6 +11,7 @@ import { BigBazaarPurchaseOrderItemsDto } from '../dto/big-bazaar.purchase.order
 import { IBigBazaarPurchaseOrderItemsHeader } from '../dto/interface/big-bazaar.purchase.order.items.header';
 import { BigBazaarPurchaseOrderItemsHeader } from '../dto/big-bazaar.purchase.order.items.header.dto';
 import { PurchaseOrderDb } from '../../services/purchase.order';
+import { TemplateMapperInfoDto } from '../dto/template-mapper-dto';
 
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
@@ -60,7 +61,7 @@ class BigBazaarDAO {
             objPurchaseOrder.ItemColumnHeaders = this.getPOHeaders(listOfTableHeader);
            // this.getHeaderIndexByName(listOfTableHeader, 'Article EAN');
             this.setPurchaseOrderHeader(objPurchaseOrder,rawPOResult);
-            const purchaseOrderItemValues: Array<any> = this.getPurchaseOrderItems(listOfTableRow);
+            const purchaseOrderItemValues: Array<any> = this.getPurchaseOrderItems(objPurchaseOrder, listOfTableRow);
             const listOfItems = new Array<IBigBazaarPurchaseOrderItemsDto>();
             _.map(purchaseOrderItemValues, (item: any) => {
                 const obj = new BigBazaarPurchaseOrderItemsDto();
@@ -117,7 +118,7 @@ class BigBazaarDAO {
             // TBD - Handle missing data e.x. description
             objPurchaseOrder.Items = listOfItems;
             // update database
-            new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
+            // new PurchaseOrderDb().updatePurchaseOrderMaster(objPurchaseOrder);
             //
             console.log(objPurchaseOrder);
             return objPurchaseOrder;
@@ -145,9 +146,9 @@ class BigBazaarDAO {
     }
 
     private setPurchaseOrderHeader(objHeader: IBigBazaarPurchaseOrderDto, rawPOResult: string[]) {
-        const headerList = this.getPurchaseOrderHeaderLabelList();
+        const headerList = objHeader.TemplateHeaderLabel; //this.getPurchaseOrderHeaderLabelList();
         const result: any = [];
-        map(headerList,(item: any) => {
+        map(headerList,(item: TemplateMapperInfoDto) => {
             const matchedText = this.newMappgingLogic(rawPOResult, this.getPdfMapperByOutputFieldName(item.OutputFieldName ,headerList));
             const matchedValue = this.getPurchaseOrderNumber(matchedText,item.InputFieldName, '\r');
             // TBD - All comparision by lower/upper case for both LHS & RHS
@@ -166,14 +167,14 @@ class BigBazaarDAO {
         });
     }
 
-    private getPurchaseOrderItems(listOfTableRow: string[]): Array<any> {
-        const itemDetailsList = this.getPurchaseOrderDetailsLabelList();
+    private getPurchaseOrderItems(obj: IBigBazaarPurchaseOrderDto, listOfTableRow: string[]): Array<any> {
+        const itemDetailsList = obj.TemplateItemLabel; //this.getPurchaseOrderDetailsLabelList();
         //tbd use group prop
         const finalResult: any = [];
         // TBD replace hardcoded 10 by finding distinct length from <itemDetailsList>
         _.map(myHelper.filterRawJsonListByLength(listOfTableRow, 10), (item: any, i: number) => {
             const result: any = [];
-            _.map(itemDetailsList, (itemDetails: any, j: number) => {
+            _.map(itemDetailsList, (itemDetails: TemplateMapperInfoDto, j: number) => {
                 const filteredLabelList = this.getItemDetailsByColumnIndex(j,itemDetailsList);
                 if(filteredLabelList && _.isArray(filteredLabelList) && filteredLabelList.length > 0) {
                     _.map(filteredLabelList, (labelItem: any, k: number) => {
@@ -275,7 +276,7 @@ class BigBazaarDAO {
        // const data = this.getProcessedDataByField(list, BBConstatnts.FIELDS_TO_MAGNIFY.PO_NUMBER, 1);
         if(matchedData) {
             const splitResult = myHelper.splitString(matchedData, splitBy);
-            if(splitResult && splitResult.length > 0) {
+            if(splitResult && splitResult.length > 1) {
                 poNumber = myHelper.filterRawJsonListBySearchTerm(splitResult, inputFieldName);
                 poNumber = poNumber.replace(':',''); 
             }

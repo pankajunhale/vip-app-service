@@ -10,7 +10,7 @@ export class MapperManagerRoutes extends CommonRoutesConfig {
 
     configureRoutes() {
         this.app
-            .route(`/mapper/create`)
+            .route(`/mapper/create/:customerId`)
             .post(mapperController.createMapper)
 
         this.app

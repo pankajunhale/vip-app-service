@@ -21,6 +21,7 @@ const debugLog: debug.IDebugger = debug('app');
 app.use(cors({
     origin: '*'
 }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static('/assets/resources'))
 const loggerOptions: expressWinston.LoggerOptions = {

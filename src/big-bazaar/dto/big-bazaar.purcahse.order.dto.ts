@@ -1,9 +1,11 @@
 import { IBigBazaarPurchaseOrderDto } from "./interface/big-bazaar.purchase.order.dto";
 import { IBigBazaarPurchaseOrderItemsDto } from "./interface/big-bazaar.purchase.order.items.dto";
 import { IBigBazaarPurchaseOrderItemsHeader } from "./interface/big-bazaar.purchase.order.items.header";
+import { TemplateMapperInfoDto } from "./template-mapper-dto";
 
 export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     Id: number;
+    CustomerId = 0;
     PurchaseOrderNumber: string;
     SoldToParty: string;
     ShipToParty: string;
@@ -25,6 +27,9 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
     JsonFile: string;
     JsonFilePath: string;
     PurchaseOrderMasterId: number;
+    TemplateMappingInformation: Array<TemplateMapperInfoDto>;
+    TemplateHeaderLabel: Array<TemplateMapperInfoDto>;
+    TemplateItemLabel: Array<TemplateMapperInfoDto>;
 
     constructor() {
         this.Id = 0;
@@ -49,6 +54,9 @@ export class BigBazaarPurchaseOrderDto implements IBigBazaarPurchaseOrderDto {
         this.IsPdfConvertedToJson = false;
         this.JsonFile = '';
         this.JsonFilePath = '';
+        this.TemplateMappingInformation = [];
+        this.TemplateHeaderLabel = [];
+        this.TemplateItemLabel = [];
         this.init();
     }
 

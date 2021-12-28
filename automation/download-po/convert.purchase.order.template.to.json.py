@@ -35,9 +35,9 @@ def main():
         logger.info(basePath)
         # print(db_utility.find_all_po_templates_for_conversion())
         for row in db_utility.find_all_po_templates_for_conversion():
-            file = row[1].split('.pdf')[0] + ".json"
+            file = row[1].lower().split('.pdf')[0] + ".json"
             pathName = basePath + "/" + file
-            logger.info("Customer Id:{a}".format(a=row[0]))
+            logger.info("Customer Id:{a}".format(a=row[1].split('.pdf')[0]))
             logger.info("File Name(PDF):{a}".format(a=row[1]))
             logger.info("Full Path:{a}".format(a=pathName))
             try:

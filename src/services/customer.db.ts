@@ -176,5 +176,5 @@ export class CustomerDb {
      return sql;
   }
 }
-
+// ER_CON_COUNT too many connnections
 //https://devdotcode.com/complete-guide-to-build-a-restful-api-with-node-js-and-express/

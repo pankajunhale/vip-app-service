@@ -9,10 +9,11 @@ class MapperManagerController {
     async createMapper(req: express.Request, res: express.Response) {
         try {
             console.log('started createMapper(): ', req.body);
+            console.log('CustomerId: ', req.params.customerId);
             const mapper = await new MapperManagerDb().insertMapperInformation(req.body).then((data) =>{
                 return data;
             });
-            res.json({mapper: mapper});
+            res.json({mapper:mapper});
         } catch (error) {
             const {message} = error as unknown as any;
             res.status(500).send('Error in processing inserting data!' + message);

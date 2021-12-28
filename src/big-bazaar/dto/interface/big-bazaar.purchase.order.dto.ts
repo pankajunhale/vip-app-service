@@ -1,7 +1,9 @@
+import { TemplateMapperInfoDto } from "../template-mapper-dto";
 import { IBigBazaarPurchaseOrderItemsDto } from "./big-bazaar.purchase.order.items.dto";
 import { IBigBazaarPurchaseOrderItemsHeader } from "./big-bazaar.purchase.order.items.header";
 
 export interface IBigBazaarPurchaseOrderDto {
+    CustomerId: number;
     Id: number;
     PurchaseOrderNumber: string;
     SoldToParty: string;
@@ -23,6 +25,9 @@ export interface IBigBazaarPurchaseOrderDto {
     IsPdfConvertedToJson: boolean;
     JsonFile: string;
     JsonFilePath: string;
+    TemplateMappingInformation: Array<TemplateMapperInfoDto>;
+    TemplateHeaderLabel: Array<TemplateMapperInfoDto>;
+    TemplateItemLabel: Array<TemplateMapperInfoDto>;
 }
 
 //SAP Mat code	Article EAN	Article Code	Description of Goods	Quantity	UoM	Storage Location	Plant	Order reason	Condition Type	Taxable Amount

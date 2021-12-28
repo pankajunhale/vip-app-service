@@ -9,6 +9,23 @@ export class MapperManagerDb {
     helper = new DB_Helper();
     constructor() { }
 
+    async find(customerId: number) {
+        try {
+          return new Promise((resolve, reject) => {
+            const selectQuery = `SELECT * FROM mapper_detail where customer_id = ${ customerId }`;
+            this.db.getConnectionPool().query(selectQuery,(err,results) => {
+              if(err){
+                return reject(err);
+              }
+              return resolve(results);
+            });
+          });
+        } catch (error) {      
+          const {message} = error as unknown as any;
+          throw new Error("Error in processing your request:" + message);
+        }
+    }
+
     insertMapperInformation = (mapperList: Array<MapperInfoDto>) => {
         return new Promise((resolve, reject) => {
             const pool = this.db.getConnectionPool();

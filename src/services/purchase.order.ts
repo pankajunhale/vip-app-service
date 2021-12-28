@@ -3,6 +3,7 @@ import { DB_Helper } from './helper';
 import { DBConfig } from '../config';
 import { IBigBazaarPurchaseOrderDto } from '../big-bazaar/dto/interface/big-bazaar.purchase.order.dto';
 import { IBigBazaarPurchaseOrderItemsDto } from '../big-bazaar/dto/interface/big-bazaar.purchase.order.items.dto';
+import { TemplateMapperInfoDto } from '../big-bazaar/dto/template-mapper-dto';
 
 export class PurchaseOrderDb {
   db = new DB();
@@ -117,11 +118,60 @@ export class PurchaseOrderDb {
     
   }
 
+  async getCustomerBySenderEmailId(PurchaseOrderFromEmailId: string) {
+    try {
+      
+      return new Promise((resolve, reject) => {
+        const splitResult = PurchaseOrderFromEmailId.split('@');
+        if(splitResult && splitResult.length > 0) {
+          const domainName: string = splitResult[1].toUpperCase();
+          const selectQuery = `SELECT id,sender_email_id,domain_name FROM customer_information where UPPER(domain_name) = "${domainName}"`;
+          // TBD:: sender_email_id Logic
+          this.db.getConnectionPool().query(selectQuery,(err,results) => {
+            if(err){
+              return reject(err);
+            }
+             console.log(results); 
+             if(results && results.length > 0) {
+              results.map((item: any) => {
+                return resolve(item.id);
+              });
+            }     
+            
+          });
+        } else {
+          return reject("Invalid sender email id.");
+        }
+      });
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
+  async getTemplateDetailsByCustomerId(customerId: number): Promise<Array<TemplateMapperInfoDto>> {
+    try {
+      return new Promise((resolve, reject) => {
+          const selectQuery = `SELECT * FROM mapper_detail where customer_id = ${customerId}`;
+          this.db.getConnectionPool().query(selectQuery,(err,results) => {
+            if(err){
+              return reject(err);
+            }
+            console.log(results);      
+            return resolve(this.getTemplateDetails(results));
+          });
+      });
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
   async getAllOpenPurchaseOrders() {
     try {
       return new Promise((resolve, reject) => {
         const selectQuery = `SELECT id,message_id, purchase_order_number, 
-        json_file_name, json_file_path,
+        json_file_name, json_file_path,email_from,
         is_pdf_converted_to_json, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
         FROM purchase_order_master WHERE DATE(created_at) = CURDATE() 
         AND purchase_order_number IS NULL`;
@@ -163,4 +213,25 @@ export class PurchaseOrderDb {
       throw new Error("Error in processing your request:" + message);
     }
   }
+
+  private getTemplateDetails(response: any): Array<TemplateMapperInfoDto> {
+    const list = new Array<TemplateMapperInfoDto>();
+    if(response && response.length > 0) {
+        response.map((item: any) => {
+            const obj = new TemplateMapperInfoDto();
+            obj.Id = item.id;
+            obj.CustomerId = item.customer_id;
+            obj.IsHeader = item.is_header;
+            obj.InputFieldName = item.input_field_name;
+            obj.OutputFieldName = item.output_field_name;
+            obj.SeparatedBy = item.separated_by;
+            obj.MapperIndex = item.mapper_index;
+            obj.ColumnIndex = item.column_index;
+            obj.GroupName = item.group_name;
+            obj.FieldCount = item.field_count;            
+            list.push(obj);
+        });
+    }
+    return list;
+}
 }
