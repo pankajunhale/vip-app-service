@@ -17,6 +17,18 @@ export class MapperManagerRoutes extends CommonRoutesConfig {
             .route(`/mapper/template/:customerId/:fileName`)
             .get(mapperController.findPurchaseOrderTemplate)
 
+        this.app
+            .route(`/mapper/:customerId/template-output-field/list`)
+            .get(mapperController.getAllTemplateOutputFields)
+
+        this.app
+            .route(`/mapper/create/header-template-output-field/:customerId`)
+            .post(mapperController.createHeaderOutputFieldMapper)
+        
+        this.app
+            .route(`/mapper/create/detail-template-output-field/:customerId`)
+            .post(mapperController.createDetailOutputFieldMapper)
+
         return this.app;
     }
 }

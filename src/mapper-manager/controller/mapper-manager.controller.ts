@@ -40,6 +40,55 @@ class MapperManagerController {
         }
         
     }
+
+    async createHeaderOutputFieldMapper(req: express.Request, res: express.Response) {
+        try {
+            console.log('started createHeaderOutputFieldMapper(): ', req.body);
+            console.log('CustomerId: ', req.params.customerId);
+            const isHeader = 1;
+            const data = await new MapperManagerDb().deleteExistingOutputFields(parseInt(req.params.customerId), isHeader);
+            const mapper = await new MapperManagerDb().insertOutputFieldInformation(req.body).then((data) =>{
+                return data;
+            });
+            res.json({mapper:mapper});
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send('Error in processing inserting data!' + message);
+        }
+        
+    }
+
+    async createDetailOutputFieldMapper(req: express.Request, res: express.Response) {
+        try {
+            console.log('started createDetailOutputFieldMapper(): ', req.body);
+            console.log('CustomerId: ', req.params.customerId);
+            const isHeader = 0;
+            const data = await new MapperManagerDb().deleteExistingOutputFields(parseInt(req.params.customerId), isHeader);
+            const mapper = await new MapperManagerDb().insertOutputFieldInformation(req.body).then((data) =>{
+                return data;
+            });
+            res.json({mapper:mapper});
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send('Error in processing inserting data!' + message);
+        }
+        
+    }
+
+    async getAllTemplateOutputFields(req: express.Request, res: express.Response) {
+        try {
+            console.log('started getAllTemplateOutputFields(): ');
+            console.log('CustomerId: ', req.params.customerId);
+            const mapper = await new MapperManagerDb().findAllOutputFields(parseInt(req.params.customerId)).then((data) =>{
+                return data;
+            });
+            res.json({mapperInfo: mapper});
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send('Error in processing fetching output field data!' + message);
+        }
+        
+    }
     
 }
 
