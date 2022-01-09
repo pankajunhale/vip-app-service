@@ -8,6 +8,8 @@ export class TemplateMapperInfoDto {
     ColumnIndex: number = -1;
     FieldCount: number = -1;    
     IsHeader: boolean = false;    
-    GroupName: string = '';         
+    GroupName: string = '';  
+    OrderItemTableCount: number = 0; 
+    SearchTerm: string = '';
     constructor() {}
 }

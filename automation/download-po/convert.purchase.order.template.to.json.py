@@ -41,7 +41,7 @@ def main():
             logger.info("File Name(PDF):{a}".format(a=row[1]))
             logger.info("Full Path:{a}".format(a=pathName))
             try:
-                convert_result = tabula.convert_into(basePath + "/" + row[1] , pathName , output_format="json", pages="all", lattice = True, stream = False)
+                convert_result = tabula.convert_into(basePath + "/" + row[1] , pathName , output_format="json", pages=[1], lattice = True, stream = False)
                 print(convert_result)
                 if(convert_result == None):
                     db_utility.update_po_templates_after_conversion(file,row[0])

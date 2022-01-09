@@ -15,15 +15,31 @@ class BigBazaarController {
     constructor() {
 
     }
-    async listPurchaseOrders(req: express.Request, res: express.Response) {
-        const reqObj = new FilterPurchaseOrderRequest();
-        const list = await bigBazaarService.list(reqObj);
-        res.status(200).send(list);
+    async listPurchaseOrders(req: express.Request, res: express.Response) {        
+        try {
+            console.log('started listPurchaseOrders():  ');
+            const result = await bigBazaarService.list().then((data) =>{
+                return data;
+            });
+            res.json({data: result});
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send('Error in fetching purchase order master data!' + message);
+        }
     }
 
-    async getPurchaseOrderById(req: express.Request, res: express.Response) {
-        const obj = await bigBazaarService.readById(req.body.purchaseOrderId);
-        res.status(200).send(obj);
+    async getPurchaseOrderDetailsByMasterId(req: express.Request, res: express.Response) {
+        try {
+            console.log('started getPurchaseOrderDetailsByMasterId(): ');
+            console.log('masterId: ', req.params.masterId);
+            const result = await bigBazaarService.listPurchaseOrderDetails(parseInt(req.params.masterId)).then((data) =>{
+                return data;
+            });
+            res.json({data: result});
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send('Error in fetching purchase order details data!' + message);
+        }
     }
 
     async createPurchaseOrder(req: express.Request, res: express.Response) {
@@ -91,16 +107,17 @@ class BigBazaarController {
             objPOMaster.JsonFilePath = item.json_file_path;
             const customer_Id: any = await this.db.getCustomerBySenderEmailId(item.email_from);
             objPOMaster.CustomerId = customer_Id;
-            const templateDetails: Array<TemplateMapperInfoDto> = await this.db.getTemplateDetailsByCustomerId(objPOMaster.CustomerId);
-            objPOMaster.TemplateMappingInformation = templateDetails;
-            objPOMaster.TemplateHeaderLabel = this.getTemplateLabelListByFlag(objPOMaster.TemplateMappingInformation, 1);
-            objPOMaster.TemplateItemLabel = this.getTemplateLabelListByFlag(objPOMaster.TemplateMappingInformation, 0);
+            //const templateDetails: Array<TemplateMapperInfoDto> = await this.db.getTemplateDetailsByCustomerId(objPOMaster.CustomerId);
+            //objPOMaster.TemplateMappingInformation = templateDetails;
+            objPOMaster.TemplateHeaderLabel = await this.db.getTemplateHeaderDetailsByCustomerId(objPOMaster.CustomerId);
+            objPOMaster.TemplateItemLabel = await this.db.getTemplateOrderItemDetailsByCustomerId(objPOMaster.CustomerId);
             // do some filtering
             console.log(objPOMaster);
             await bigBazaarService.create(objPOMaster);
         } catch (error) {
             const {message} = error as unknown as any;
-            throw new Error("Error in processing your request:" + message);
+            console.log(error, message);
+            //throw new Error("Error in processing your request:" + message);
         }
     }
 

@@ -5,7 +5,7 @@ import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto'
 import shortid from 'shortid';
 import { FilterPurchaseOrderRequest } from '../../common/filter.purchase-order';
 
-class BigBazaarService implements CRUD {
+class BigBazaarService {
 
     async create(model: IBigBazaarPurchaseOrderDto) {
         try {
@@ -15,13 +15,12 @@ class BigBazaarService implements CRUD {
         }
     }
 
-    async list(reqObj: FilterPurchaseOrderRequest) {
-        return bigBazaarDao.getPurchaseOrders();
+    async list() {
+        return bigBazaarDao.getPurchaseOrderMaster();
     }
 
-    async readById(id: string) {
-        const obj = new BigBazaarPurchaseOrderDto();
-        return obj;
+    async listPurchaseOrderDetails(masterId: number) {
+        return bigBazaarDao.getPurchaseOrderDetailsById(masterId);
     }
 
     async deleteById(id: string) {

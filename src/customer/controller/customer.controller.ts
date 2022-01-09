@@ -35,7 +35,7 @@ class CustomerController {
         try {
             console.log('started validateCustomerDomain(): ', req.body);
             const domainName = req.params.domainName;
-            const isExist = await new CustomerDb().isCustomerDomainExist(domainName).then((data) =>{
+            const isExist = await new CustomerDb().isCustomerDomainExist(req.body, '').then((data) =>{
                 return data;
             });
             res.json({isDomainExist: isExist});

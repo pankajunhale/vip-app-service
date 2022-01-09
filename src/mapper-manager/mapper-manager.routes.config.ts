@@ -14,12 +14,20 @@ export class MapperManagerRoutes extends CommonRoutesConfig {
             .post(mapperController.createMapper)
 
         this.app
+            .route(`/mapper/details/:customerId`)
+            .get(mapperController.getMapperDetails)
+
+        this.app
             .route(`/mapper/template/:customerId/:fileName`)
             .get(mapperController.findPurchaseOrderTemplate)
 
         this.app
-            .route(`/mapper/:customerId/template-output-field/list`)
-            .get(mapperController.getAllTemplateOutputFields)
+            .route(`/mapper/:customerId/template-output-field/order-details/list`)
+            .get(mapperController.getAllTemplateOutputFieldsForDetails)
+        
+        this.app
+            .route(`/mapper/:customerId/template-output-field/order-header/list`)
+            .get(mapperController.getAllTemplateOutputFieldsForHeader)
 
         this.app
             .route(`/mapper/create/header-template-output-field/:customerId`)

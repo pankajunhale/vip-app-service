@@ -2,7 +2,7 @@ export class BaseMapperManagerDto {
     CreateAt = '';
     CreatedBy = 0;
     UpdatedAt = '';
-    UpdateBy = 0;
+    UpdatedBy = 0;
     
     constructor() {
 

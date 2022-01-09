@@ -45,6 +45,15 @@ def get_sent_since_query():
     month = todays_date.month
     month_str = ''
     date_str = ''
+    if month == 1:
+        month_str = 'JAN'
+        date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
+    if month == 2:
+        month_str = 'FEB'
+        date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
+    if month == 3:
+        month_str = 'MAR'
+        date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)
     if month == 10:
         month_str = 'OCT'
         date_str = "{a}-{b}-{c}".format(a=todays_date.day,b=month_str,c=todays_date.year)

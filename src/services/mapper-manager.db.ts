@@ -27,7 +27,7 @@ export class MapperManagerDb {
     }
   }
 
-  async findAllOutputFields(customerId: number) {
+  async findAllOutputFieldsForDetails(customerId: number) {
     try {
       return new Promise((resolve, reject) => {
         const selectQuery = `SELECT * FROM output_field_mapper where customer_id = ${customerId}`;
@@ -44,24 +44,74 @@ export class MapperManagerDb {
     }
   }
 
+  async findAllOutputFieldsForHeader(customerId: number) {
+    try {
+      return new Promise((resolve, reject) => {
+        const selectQuery = `SELECT *, md.output_field_name as name FROM mapper_detail as md where md.customer_id = ${customerId}`;
+        this.db.getConnectionPool().query(selectQuery, (err, results) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve(results);
+        });
+      });
+    } catch (error) {
+      const { message } = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
+  async isOutputFieldAlreadyExist(customerId: number, id: number): Promise<boolean>  {
+    try {
+      return new Promise((resolve, reject) => {
+        const selectQuery = `SELECT * FROM output_field_mapper where id = ${id} AND customer_id = ${customerId}`;
+        this.db.getConnectionPool().query(selectQuery, (err, results) => {
+          if (err) {
+            return reject(err);
+          }
+          const isExist = (results.length === 1 ? true : false);  
+          return resolve(isExist);
+        });
+      });
+    } catch (error) {
+      const { message } = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
+  deleteExistingMapperInformation = (customerId: number) => {
+    return new Promise((resolve, reject) => {
+      const selectQuery = `DELETE FROM mapper_detail where customer_id = ${customerId}`;
+      this.db.getConnectionPool().query(selectQuery, (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(results);
+      });
+    });
+  };
+
   insertMapperInformation = (mapperList: Array<MapperInfoDto>) => {
     return new Promise((resolve, reject) => {
       const pool = this.db.getConnectionPool();
       const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
       pool.query(this.getInsertQuery(),
-        [mapperList.map(model => [
-          model.CustomerId,
-          model.IsHeader,
-          `${model.InputFieldName}`,
-          `${model.OutputFieldName}`,
-          `${model.SeparatedBy}`,
-          `${model.MapperIndex}`,
-          model.ColumnIndex,
-          `${model.GroupName}`,
-          model.FieldCount,
-          model.CreatedBy,
-          createdAt
-        ])
+        [mapperList.map(model => 
+          [
+            model.CustomerId,
+            model.IsHeader,
+            `${model.InputFieldName}`,
+            `${model.OutputFieldName}`,
+            `${model.SeparatedBy}`,
+            `${model.MapperIndex}`,
+            model.ColumnIndex,
+            `${model.GroupName}`,
+            model.FieldCount,
+            model.CreatedBy,
+            createdAt,
+            `${model.SearchLabel}`
+          ]
+        )
         ], (error, result) => {
           if (error) {
             return reject(error);
@@ -83,7 +133,14 @@ export class MapperManagerDb {
     });
   };
 
-  insertOutputFieldInformation = (mapperList: Array<OutputFieldDto>) => {
+  saveOutputFieldInformation = (mapperList: Array<OutputFieldDto>, id: number, customerId: number ) => {
+    mapperList.map((item: OutputFieldDto) => {
+      this.isOutputFieldAlreadyExist(customerId, id).then((isExist: boolean) => {
+        item.IsExist = isExist;
+      })     
+    })
+  }
+  insertOutputFieldInformation = (mapperList: Array<OutputFieldDto>, orderItemTableColumnCount: number) => {
     return new Promise((resolve, reject) => {
       const pool = this.db.getConnectionPool();
       const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -92,8 +149,9 @@ export class MapperManagerDb {
           model.CustomerId,
           model.IsHeader,
           `${model.Name}`,
-          `${model.CellFieldCount}`,
           `${model.ColumnIndex}`,
+          `${model.CellFieldCount}`,
+          orderItemTableColumnCount,
           model.CreatedBy,
           createdAt
         ])
@@ -106,13 +164,65 @@ export class MapperManagerDb {
     });
   };
 
+  updateOutputFields(list: Array<OutputFieldDto>, orderItemTableColumnCount: number): Promise<any> {
+    try {
+      let myPromise: Promise<any>;
+      return new Promise((resolve, reject) => {
+        list.map((model: OutputFieldDto) => {
+          const updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+          myPromise = new Promise((resolve, reject) => {
+            this.db.getConnectionPool().query(
+              `UPDATE output_field_mapper 
+                SET
+                  name = "${model.Name}",
+                  column_index = ${model.ColumnIndex},
+                  field_count = ${model.CellFieldCount},
+                  table_column_count = ${orderItemTableColumnCount},             
+                  updated_by = ${model.CreatedBy},
+                  updated_at = "${updatedAt}"
+                WHERE
+                  id = ${model.Id}
+              `,(err,results) => {
+                  if (err) {
+                    return reject(err);            
+                  }
+                  return resolve(results.affectedRows);
+            })
+          });
+        });
+        myPromise.then((value) => {
+          return resolve(value);
+        }).catch((resaon) => {
+          return reject(resaon);
+        })
+        
+      })
+      
+      
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
+  getOutputFieldDataForSave (data: any, isExist: boolean): Array<OutputFieldDto> {
+    let listOfFilteredHeaderInfo = new Array<OutputFieldDto>();
+    if(data && data.length) {
+        listOfFilteredHeaderInfo = data.filter((item: OutputFieldDto) => {
+            return (item.IsExist === isExist);
+        })
+    }
+    console.log('Filtered Result: ', listOfFilteredHeaderInfo);
+    return listOfFilteredHeaderInfo;
+  }
   private getOutputFieldMapperInsertQuery = () => {
     const sql = `INSERT INTO output_field_mapper (        
         customer_id,
         is_header,
         name,
         column_index,
-        field_count,            
+        field_count,
+        table_column_count,        
         created_by,
         created_at
     ) VALUES ?`;
@@ -131,7 +241,8 @@ export class MapperManagerDb {
           group_name,
           field_count,            
           created_by,
-          created_at
+          created_at,
+          search_term
       ) VALUES ?`;
     return sql;
   }

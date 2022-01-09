@@ -7,6 +7,7 @@ export class OutputFieldDto extends BaseMapperManagerDto {
     IsHeader: boolean;
     ColumnIndex: number = -1;
     CellFieldCount = 0;
+    IsExist: boolean = false;    
     constructor(id: number, name: string, 
         isHeader: boolean, 
         columnIndex: number,

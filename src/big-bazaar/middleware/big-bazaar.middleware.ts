@@ -14,20 +14,6 @@ class BigBazaarMiddleware {
         next();
     }
 
-    async validatePurchaseOrderExists(
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-    ) {
-        const user = await bigBazaarService.readById(req.params.userId);
-        if (user) {
-            next();
-        } else {
-            res.status(404).send({
-                error: `Purchase Order ${req.params.purchaseOrderId} not found`,
-            });
-        }
-    }
 
 }
 

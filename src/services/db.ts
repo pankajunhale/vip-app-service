@@ -2,6 +2,7 @@ import mysql from 'mysql';
 import {DBConfig} from '../config';
 const config = new DBConfig().config();
 const connection = mysql.createConnection(config.db);
+const connectionPool = mysql.createPool(config.db);
 //
 export class DB {
     constructor() {}
@@ -24,6 +25,6 @@ export class DB {
     }
 
     getConnectionPool() {
-        return mysql.createPool(config.db);
+        return connectionPool;
     }
 }

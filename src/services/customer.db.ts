@@ -1,6 +1,7 @@
 import { DB } from './db';
 import { DB_Helper } from './helper';
 import { DBConfig } from '../config';
+import { CustomerValidationInfo } from '../big-bazaar/dto/customer-validation-error';
 
 export class CustomerDb {
   db = new DB();
@@ -42,10 +43,17 @@ export class CustomerDb {
     }
   }
 
-  async isCustomerDomainExist(domainName: string) {
+  async isCustomerAlreadyExist(model: any, action: string) {
     try {
       return new Promise((resolve, reject) => {
-        const selectQuery = `SELECT * FROM customer_information where domain_name = '${ domainName.toLowerCase() }' `;
+        let selectQuery = '';
+        if(action === 'CREATE') {
+          selectQuery = `SELECT * FROM customer_information where LOWER(name) = '${ model.Name.toLowerCase() }' `;
+        }
+        else {
+          selectQuery = `SELECT * FROM customer_information where LOWER(name) = '${ model.Name.toLowerCase() }' AND customer_id != ${model.Id}`;
+        }
+        
         this.db.getConnectionPool().query(selectQuery,(err,results) => {
           if(err){
             return reject(err);
@@ -53,7 +61,7 @@ export class CustomerDb {
           let isExist = false;
           if(results.length) {
             isExist = true;
-          } 
+          }
           return resolve(isExist);
         });
       });
@@ -62,6 +70,68 @@ export class CustomerDb {
       throw new Error("Error in processing your request:" + message);
     }
   }
+
+  async isCustomerDomainExist(model: any, action: string) {
+    try {
+      return new Promise((resolve, reject) => {
+        let selectQuery = '';
+        if(action === 'CREATE') {
+          selectQuery = `SELECT * FROM customer_information where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' `;
+        }
+        else {
+          selectQuery = `SELECT * FROM customer_information where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' AND customer_id != ${model.Id}`;
+        }
+        
+        this.db.getConnectionPool().query(selectQuery,(err,results) => {
+          if(err){
+            return reject(err);
+          }
+          let isExist = false;
+          if(results.length) {
+            isExist = true;
+          }
+          return resolve(isExist);
+        });
+      });
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
+  async isDomainAndSenderEmailDomainValid(model: any, action: string) {
+    try {
+      return new Promise((resolve, reject) => {
+        let selectQuery = '';
+        if(action === 'CREATE') {
+          selectQuery = `SELECT * FROM customer_information 
+          where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' 
+          AND LOWER(sender_email_id) LIKE '${ model.SenderEmailId.toLowerCase() }'`;
+        }
+        else {
+          selectQuery = `SELECT * FROM customer_information 
+          where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }'
+          AND LOWER(sender_email_id) LIKE '${ model.SenderEmailId.toLowerCase() }'
+          AND id != ${model.Id}`;
+        }
+        
+        this.db.getConnectionPool().query(selectQuery,(err,results) => {
+          if(err){
+            return reject(err);
+          }
+          let isExist = false;
+          if(results.length) {
+            isExist = true;
+          }
+          return resolve(isExist);
+        });
+      });
+    } catch (error) {      
+      const {message} = error as unknown as any;
+      throw new Error("Error in processing your request:" + message);
+    }
+  }
+
 
   async updateTemplateInfo(model: any) {
     try {

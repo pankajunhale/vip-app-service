@@ -14,11 +14,9 @@ export class BigBazaarRoutes extends CommonRoutesConfig {
             .route(`/purchase-order/list`)
             .get(BigBazaarController.listPurchaseOrders)
 
-        this.app.param(`purchaseOrderId`, UsersMiddleware.extractPurchaseOrderId);
         this.app
-            .route(`/purchase-order/details:id`)
-            .all(UsersMiddleware.validatePurchaseOrderExists)
-            .get(BigBazaarController.getPurchaseOrderById)
+            .route(`/purchase-order/details/:masterId`)
+            .get(BigBazaarController.getPurchaseOrderDetailsByMasterId)
 
         this.app
             .route(`/purchase-order/create`)
