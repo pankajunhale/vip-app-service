@@ -1,0 +1,58 @@
+{
+    "data": [
+        {
+            "configuration_key" : "big-bazaar",
+            "domain": "bigbazaar.com",
+            "purchase_order_columns": [
+                {  
+                    "name": "Article  EAN"
+                },
+                {  
+                    "name": "Article Code"
+                },
+                {  
+                    "name": "Description of Goods"
+                },
+                {  
+                    "name": "Description of"
+                },
+                {  
+                    "name": "Goods"
+                },
+                {  
+                    "name": "HSN"                
+                },
+                {  
+                    "name": "MRP"                    
+                },
+                {  
+                    "name": "Qty"                    
+                },
+                {  
+                    "name": "UoM"
+                },
+                {  
+                    "name": "Basic Cost"                    
+                },
+                {  
+                    "name": "Taxable Value"                    
+                },
+                {  
+                    "name": "SGST Rate"                    
+                },
+                {  
+                    "name": "SGST Amt"                    
+                },
+                {  
+                    "name": "CGST Rate"                    
+                },
+                {  
+                    "name": "CGST Amt"                    
+                },
+                {  
+                    "name": "Total Amt"                    
+                }
+            ]
+
+    }]
+}

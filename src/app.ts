@@ -1,11 +1,17 @@
-import express from 'express';
+import express, { urlencoded } from 'express';
+import path from 'path';
 import * as http from 'http';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
 import cors from 'cors';
 import { CommonRoutesConfig } from './common/common.routes.config';
-import { UsersRoutes } from './users/users.routes.config';
+import { BigBazaarRoutes } from './big-bazaar/big-bazaar.routes.config';
+import { CustomerRoutes } from './customer/customer.routes.config';
+import { MapperManagerRoutes } from './mapper-manager/mapper-manager.routes.config';
 import debug from 'debug';
+import cron from 'node-cron';
+import bigBazaarController from './big-bazaar/controllers/big-bazaar.controller';
+import { DashboardReportRoutes } from './dashboard-report/dashboard-report.routes.config';
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
@@ -13,9 +19,13 @@ const port = 3030;
 const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug('app');
 
+app.use(cors({
+    origin: '*'
+}));
 app.use(express.json());
-app.use(cors());
-
+app.use(express.urlencoded({ extended: true }));
+//app.use('/static', express.static('/assets/resources'))
+app.use('/static', express.static('/automation/download-po/'))
 const loggerOptions: expressWinston.LoggerOptions = {
     transports: [new winston.transports.Console()],
     format: winston.format.combine(
@@ -31,9 +41,13 @@ if (!process.env.DEBUG) {
 
 app.use(expressWinston.logger(loggerOptions));
 
-routes.push(new UsersRoutes(app));
-console.log('hello world !!!')
-const runningMessage = `Server running at http://localhost:${port}`;
+routes.push(new BigBazaarRoutes(app));
+routes.push(new CustomerRoutes(app));
+routes.push(new MapperManagerRoutes(app));
+routes.push(new DashboardReportRoutes(app));
+
+const apiUrl = process.env.API_URL;
+const runningMessage = `Server running at: ${apiUrl} with port:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
     res.status(200).send(runningMessage + ' : ' + new Date())
 });
@@ -42,4 +56,8 @@ server.listen(port, () => {
         debugLog(`Routes configured for ${route.getName()}`);
     });
     console.log(runningMessage);
+});
+
+cron.schedule('* * * * *',() =>{
+    bigBazaarController.processPurchaseOrderJob();
 });
