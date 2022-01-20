@@ -11,6 +11,7 @@ import { MapperManagerRoutes } from './mapper-manager/mapper-manager.routes.conf
 import debug from 'debug';
 import cron from 'node-cron';
 import bigBazaarController from './big-bazaar/controllers/big-bazaar.controller';
+import { DashboardReportRoutes } from './dashboard-report/dashboard-report.routes.config';
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
@@ -23,7 +24,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/static', express.static('/assets/resources'))
+//app.use('/static', express.static('/assets/resources'))
+app.use('/static', express.static('/automation/download-po/'))
 const loggerOptions: expressWinston.LoggerOptions = {
     transports: [new winston.transports.Console()],
     format: winston.format.combine(
@@ -42,6 +44,7 @@ app.use(expressWinston.logger(loggerOptions));
 routes.push(new BigBazaarRoutes(app));
 routes.push(new CustomerRoutes(app));
 routes.push(new MapperManagerRoutes(app));
+routes.push(new DashboardReportRoutes(app));
 
 const apiUrl = process.env.API_URL;
 const runningMessage = `Server running at: ${apiUrl} with port:${port}`;

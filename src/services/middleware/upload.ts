@@ -4,8 +4,9 @@ const maxSize = 2 * 1024 * 1024;
 const process = require('process');
 
 // Printing present working Directory
-console.log("Present working directory: " + process.cwd());
+console.log("Before Present working directory: " + process.cwd());
 process.chdir(process.cwd()+ '\\assets\\resources\\');
+console.log("After Present working directory: " + process.cwd());
 let storage = multer.diskStorage({
   destination: (req: any, file: any, cb: any) => {
     const myDirectoryPath = `${process.cwd()}`;

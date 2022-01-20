@@ -23,17 +23,22 @@ export class PurchaseOrderDb {
     }
   }
 
-  async getAllPurchaseOrderMaster(): Promise<Array<TemplateMapperInfoDto>> {
+  async getAllPurchaseOrderMaster(page: string = '2'): Promise<Array<TemplateMapperInfoDto>> {
     try {
       return new Promise((resolve, reject) => {
-          const selectQuery = `select * from purchase_order_master where purchase_order_number IS NOT NULL`;
-          this.db.getConnectionPool().query(selectQuery,(err,results) => {
-            if(err){
-              return reject(err);
-            }
-            console.log(results);      
-            return resolve(results);
-          });
+        const offset = this.helper.getOffset(parseInt(page), this.config.listPerPage);
+        console.log(offset, this.config.listPerPage);
+        const selectQuery = `select * from purchase_order_master 
+        where purchase_order_number IS NOT NULL 
+        LIMIT ${offset},${this.config.listPerPage}
+        `;
+        this.db.getConnectionPool().query(selectQuery,(err,results) => {
+          if(err){
+            return reject(err);
+          }
+          console.log(results);      
+          return resolve(results);
+        });
       });
     } catch (error) {      
       const {message} = error as unknown as any;
@@ -284,7 +289,8 @@ export class PurchaseOrderDb {
           `UPDATE purchase_order_master 
             SET
               purchase_order_number = '${poMaster.PurchaseOrderNumber}',            
-              is_json_parsed = true, 
+              is_json_parsed = true,
+              customer_id = ${poMaster.CustomerId},
               updated_at = CURDATE()
             WHERE
               id = ${poMaster.Id}

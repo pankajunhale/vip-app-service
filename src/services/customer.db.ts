@@ -1,8 +1,8 @@
 import { DB } from './db';
 import { DB_Helper } from './helper';
 import { DBConfig } from '../config';
-import { CustomerValidationInfo } from '../big-bazaar/dto/customer-validation-error';
-
+import { CustomerValidationInfoDto } from '../customer/dto/customer-validation-info.dto';
+import express from 'express';
 export class CustomerDb {
   db = new DB();
   config = new DBConfig().config();
@@ -43,7 +43,7 @@ export class CustomerDb {
     }
   }
 
-  async isCustomerAlreadyExist(model: any, action: string) {
+  async isCustomerAlreadyExist(model: any, action: string): Promise<boolean> {
     try {
       return new Promise((resolve, reject) => {
         let selectQuery = '';
@@ -51,7 +51,7 @@ export class CustomerDb {
           selectQuery = `SELECT * FROM customer_information where LOWER(name) = '${ model.Name.toLowerCase() }' `;
         }
         else {
-          selectQuery = `SELECT * FROM customer_information where LOWER(name) = '${ model.Name.toLowerCase() }' AND customer_id != ${model.Id}`;
+          selectQuery = `SELECT * FROM customer_information where LOWER(name) = '${ model.Name.toLowerCase() }' AND id != ${model.Id}`;
         }
         
         this.db.getConnectionPool().query(selectQuery,(err,results) => {
@@ -71,7 +71,7 @@ export class CustomerDb {
     }
   }
 
-  async isCustomerDomainExist(model: any, action: string) {
+  async isCustomerDomainExist(model: any, action: string): Promise<boolean> {
     try {
       return new Promise((resolve, reject) => {
         let selectQuery = '';
@@ -79,7 +79,7 @@ export class CustomerDb {
           selectQuery = `SELECT * FROM customer_information where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' `;
         }
         else {
-          selectQuery = `SELECT * FROM customer_information where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' AND customer_id != ${model.Id}`;
+          selectQuery = `SELECT * FROM customer_information where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' AND id != ${model.Id}`;
         }
         
         this.db.getConnectionPool().query(selectQuery,(err,results) => {
@@ -99,19 +99,19 @@ export class CustomerDb {
     }
   }
 
-  async isDomainAndSenderEmailDomainValid(model: any, action: string) {
+  async isDomainAndSenderEmailDomainValid(model: any, action: string): Promise<boolean> {
     try {
       return new Promise((resolve, reject) => {
         let selectQuery = '';
         if(action === 'CREATE') {
           selectQuery = `SELECT * FROM customer_information 
           where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }' 
-          AND LOWER(sender_email_id) LIKE '${ model.SenderEmailId.toLowerCase() }'`;
+          AND LOWER(sender_email_id) LIKE '%${ model.SenderEmailId.toLowerCase() }%'`;
         }
         else {
           selectQuery = `SELECT * FROM customer_information 
           where LOWER(domain_name) = '${ model.DomainName.toLowerCase() }'
-          AND LOWER(sender_email_id) LIKE '${ model.SenderEmailId.toLowerCase() }'
+          AND LOWER(sender_email_id) LIKE '%${ model.SenderEmailId.toLowerCase() }%'
           AND id != ${model.Id}`;
         }
         
@@ -224,6 +224,22 @@ export class CustomerDb {
       });
     });
   };
+
+  async validateCustomerBeforeSaving( action: string, model: any,res: express.Response): Promise<any> {
+    const objErrorMessage = new CustomerValidationInfoDto();
+    const isCustomerDuplicate: boolean = await this.isCustomerAlreadyExist(model, action);
+    if(isCustomerDuplicate) {                
+        return res.status(500).send({data: objErrorMessage.getErrorByCode(objErrorMessage.DUPLICATE_CUSTOMER)});
+    }
+    const isCustomerDomainDuplicate: boolean = await this.isCustomerDomainExist(model, action);
+    if(isCustomerDomainDuplicate) {                
+        return res.status(500).send({data: objErrorMessage.getErrorByCode(objErrorMessage.DUPLICATE_DOMAIN)});
+    }
+    const isCustomerDomainAndSenderEmailValid: boolean = await this.isDomainAndSenderEmailDomainValid(model, action);
+    if(isCustomerDomainAndSenderEmailValid) {                
+        return res.status(500).send({data: objErrorMessage.getErrorByCode(objErrorMessage.DUPLICATE_SENDER_ID)});
+    }
+}
 
   private getInsertQuery = () => {
     const sql = `INSERT INTO customer_information (
