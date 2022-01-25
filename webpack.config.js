@@ -11,8 +11,7 @@ fs.readdirSync('node_modules')
     nodeModules[mod] = 'commonjs ' + mod;
   });
 
-module.exports = (env) => {
-  console.log(env);
+module.exports = (env) => {  
   if(env.development) {
     process.env.NODE_ENV = 'development';
   }  
@@ -35,12 +34,7 @@ module.exports = (env) => {
       ]
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env':{       
-          "SERVER": JSON.stringify("development"),   
-          'API_PORT': JSON.stringify(env.port)          
-        }
-      })
+      new webpack.DefinePlugin({})
     ]
   }
 }

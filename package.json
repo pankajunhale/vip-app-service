@@ -4,10 +4,10 @@
   "description": "VIP Purchase Order Processing Service",
   "main": "./src/app.ts",
   "scripts": {
-    "start": "npx webpack --env development --config ./webpack.config.js && nodemon ./src/app.ts",
-    "build": "npx webpack --env development --env mode=development --env port=3030 --config ./webpack.config.js",
-    "build-qa": "npx webpack --env qa --env mode=production --env port=3030 --config ./webpack.config.qa.js",
-    "build-prod": "npx webpack --env production --env mode=production --env port=3030 --config ./webpack.config.prod.js",
+    "start": "npx webpack --env development --env mode=development --config ./webpack.config.js && nodemon ./src/app.ts",
+    "build": "npx webpack --env development --env mode=development --config ./webpack.config.js",
+    "build-qa": "npx webpack --env qa --env mode=production --config ./webpack.config.qa.js",
+    "build-prod": "npx webpack --env production --env mode=production --config ./webpack.config.prod.js",
     "start-watch": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
     "debug": "set DEBUG=* && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -33,6 +33,7 @@
     "argon2": "^0.27.0",
     "cors": "^2.8.5",
     "debug": "^4.2.0",
+    "dotenv": "^14.3.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
     "multer": "^1.4.4",

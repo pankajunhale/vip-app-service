@@ -1,18 +1,12 @@
-import mySql from 'mysql';
-const env = process.env.SERVER;
+import * as dotenv from "dotenv";
 export class DBConfig {
 
     constructor() {
+      dotenv.config();
     }
     config = (): any => {
-      console.log('current env:',env);
-      switch (env) {
-        case 'development':
-          return this.developmentConfig();          
-          case 'qa':
-            return this.qaConfig();          
-      }
-      
+      console.log('dotenv:',process.env.DB_PORT);
+      return this.getConfig();
     }
     
     private developmentConfig() {
@@ -57,6 +51,20 @@ export class DBConfig {
           password: 'vip@123456',
           database: 'vip-po-automation-dev-db',
           port: 3306
+        },
+        listPerPage:10
+      }
+    }
+
+
+    private getConfig() {
+      return {
+        db: {
+          host: process.env.DB_HOST,
+          user: process.env.DB_USER,
+          password: process.env.DB_PASSWORD,
+          database: process.env.DB,
+          port: process.env.DB_PORT
         },
         listPerPage:10
       }

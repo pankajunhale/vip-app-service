@@ -12,7 +12,9 @@ fs.readdirSync('node_modules')
   });
 
 module.exports = (env) => {
-  console.log(env);  
+  if(env.production) {
+    process.env.NODE_ENV = 'production';
+  } 
   return {
     entry: './src/app.ts',
     target: 'node',
@@ -32,12 +34,7 @@ module.exports = (env) => {
       ]
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env':{          
-          "SERVER": JSON.stringify("production"),
-          'API_PORT': JSON.stringify(env.port)          
-        }
-      })
+      new webpack.DefinePlugin({})
     ]
   }
 }
