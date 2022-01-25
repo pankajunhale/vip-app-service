@@ -84,9 +84,10 @@ def main():
                         hasAttachment = True
                         pdf_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.pdf'
                         json_file_name = utility.get_todays_date() + '_poid_'+ str(messageId) + '.json'
-
-                        sv_path = os.path.join('./', pdf_file_name) 
-                        json_file_path = os.path.join('./', json_file_name) 
+                        os.chdir('../'+constant.CUSTOMER_PURCHASE_ORDERS)
+                        basePath = os.getcwd()
+                        sv_path = os.path.join(basePath, pdf_file_name) 
+                        json_file_path = os.path.join(basePath, json_file_name) 
                         if filename is not None: 
                             counter = counter + 1
                             if not os.path.isfile(sv_path): 

@@ -8,6 +8,7 @@ import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto'
 import fs from 'fs';
 import path from 'path';
 import { TemplateMapperInfoDto } from '../dto/template-mapper-dto';
+import BBConstatnts from '../../common/big-bazaar.constants';
 
 const log: debug.IDebugger = debug('app:users-controller');
 class BigBazaarController {
@@ -77,9 +78,12 @@ class BigBazaarController {
         await this.db.getAllOpenPurchaseOrders().then((response:any) => {
             if(response && response.length > 0) {
                 response.map((item: any) => {
-                    const directoryPath = path.join(__dirname, '../../../automation/download-po');
-                    const fileName = `${directoryPath}\\${item.json_file_name}`;
-                        if(fs.existsSync(fileName)) {
+                    //process.chdir(process.cwd()+ `${BBConstatnts.CUSTOMER_PURCHASE_ORDERS}`);
+                    //const directoryPath = path.join(__dirname, `../${BBConstatnts.CUSTOMER_PURCHASE_ORDERS}`);
+                    const directoryPath = process.cwd();
+                    const fileName = `${directoryPath}\\${item.json_file_path}`;
+                    console.log(directoryPath,fileName);
+                        if(fs.existsSync(item.json_file_path)) {
                             console.log(fileName,'exist');
                             item.json_file_name = fileName; // new path                            
                             this.processPurchaseOrder(item);

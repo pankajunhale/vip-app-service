@@ -6,9 +6,9 @@ import os
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
 
-MY_HOST = "localhost"
+MY_HOST = "148.72.214.82"
 MY_USER = "root"
-MY_PASSWORD = "vip@123456"
+MY_PASSWORD = "123456"
 MY_DB = "vip-po-automation-dev-db"
 
 def main():
