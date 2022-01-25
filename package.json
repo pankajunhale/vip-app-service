@@ -4,9 +4,10 @@
   "description": "VIP Purchase Order Processing Service",
   "main": "./src/app.ts",
   "scripts": {
-    "start": "npx webpack --env development --mode=development --config ./webpack.config.js && nodemon ./src/app.ts",
-    "build": "npx webpack --env development --mode=development ",
-    "build-prod": "npx webpack --env production --mode=production",
+    "start": "npx webpack --env development --config ./webpack.config.js && nodemon ./src/app.ts",
+    "build": "npx webpack --env development --env mode=development --env port=3030 --config ./webpack.config.js",
+    "build-qa": "npx webpack --env qa --env mode=production --env port=3030 --config ./webpack.config.qa.js",
+    "build-prod": "npx webpack --env production --env mode=production --env port=3030 --config ./webpack.config.prod.js",
     "start-watch": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
     "debug": "set DEBUG=* && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"

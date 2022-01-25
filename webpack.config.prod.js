@@ -12,10 +12,7 @@ fs.readdirSync('node_modules')
   });
 
 module.exports = (env) => {
-  console.log(env);
-  if(env.development) {
-    process.env.NODE_ENV = 'development';
-  }  
+  console.log(env);  
   return {
     entry: './src/app.ts',
     target: 'node',
@@ -36,8 +33,8 @@ module.exports = (env) => {
     },
     plugins: [
       new webpack.DefinePlugin({
-        'process.env':{       
-          "SERVER": JSON.stringify("development"),   
+        'process.env':{          
+          "SERVER": JSON.stringify("production"),
           'API_PORT': JSON.stringify(env.port)          
         }
       })

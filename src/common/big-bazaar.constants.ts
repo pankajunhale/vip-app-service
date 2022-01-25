@@ -21,8 +21,9 @@ const BBConstatnts = {
         { index: 8 , name: ''},
         { index: 9 , name: ''},
         { index: 10 , name: ''},
-    ]
-
+    ],
+    CUSTOMER_PURCHASE_ORDER_TEMPLATE: '\\assets\\resources\\',
+    CUSTOMER_PURCHASE_ORDERS: '\\purchase-orders\\'
 }
 
 export default BBConstatnts;

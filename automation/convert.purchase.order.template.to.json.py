@@ -4,6 +4,7 @@ import logging
 import importlib
 import traceback
 import tabula
+import constant
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
 db_module_name = 'db-utility'
@@ -30,8 +31,9 @@ def main():
         logger.info('running main()')
         # os.chdir(os.path.dirname(os.path.abspath(__file__)))
         logger.info(os.getcwd())
-        os.chdir('../../assets/resources/')
+        os.chdir('../'+constant.CUSTOMER_PURCHASE_ORDER_TEMPLATE)
         basePath = os.getcwd()
+        print(basePath)
         logger.info(basePath)
         # print(db_utility.find_all_po_templates_for_conversion())
         for row in db_utility.find_all_po_templates_for_conversion():

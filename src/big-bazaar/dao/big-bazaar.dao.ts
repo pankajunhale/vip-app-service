@@ -23,7 +23,7 @@ class BigBazaarDAO {
         try {
             let listOfTableHeader: any = null;
             let listOfTableRow: any = [];
-            const fileBuffer: any = fs.readFileSync(objPurchaseOrder.JsonFile);
+            const fileBuffer: any = fs.readFileSync(objPurchaseOrder.JsonFilePath);
             const rawPOResult = JSON.parse(fileBuffer);
             //console.log(rawPOResult);
             if (fileBuffer && rawPOResult.length >= 2) {
