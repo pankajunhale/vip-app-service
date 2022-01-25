@@ -8,6 +8,9 @@ import logging
 import importlib
 import constant
 import tabula
+from dotenv import load_dotenv
+
+load_dotenv()
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
 db_module_name = 'db-utility'
@@ -37,8 +40,13 @@ print("Today date is: ",utility.get_sent_since_query())
 logger.info('my logging message')
 def main():
     try:
-        con = imaplib.IMAP4_SSL(constant.SMTP_SERVER,constant.SMTP_PORT)
-        con.login(constant.FROM_EMAIL,constant.FROM_PWD)
+        SMTP_PORT  = os.getenv("SMTP_PORT")
+        SMTP_SERVER  = os.getenv("SMTP_SERVER")
+        FROM_EMAIL  = os.getenv("FROM_EMAIL")
+        FROM_PWD  = os.getenv("FROM_PWD")
+        
+        con = imaplib.IMAP4_SSL(SMTP_SERVER,SMTP_PORT)
+        con.login(FROM_EMAIL,FROM_PWD)
         con.select('inbox')
         isOk, msgNumbers = con.search(None, utility.get_sent_since_query())
         #sql isExist
