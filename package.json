@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx webpack --env development --env mode=development --config ./webpack.config.js && nodemon ./src/app.ts",
     "build": "npx webpack --env development --env mode=development --config ./webpack.config.js",
-    "build-qa": "npx webpack --env qa --env mode=production --config ./webpack.config.qa.js",
+    "build-qa": "npx webpack --env production --env mode=production --config ./webpack.config.qa.js",
     "build-prod": "npx webpack --env production --env mode=production --config ./webpack.config.prod.js",
     "start-watch": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
     "debug": "set DEBUG=* && npm start",
@@ -51,6 +51,7 @@
     "@types/node-cron": "^3.0.0",
     "@types/shortid": "0.0.29",
     "@types/underscore": "^1.11.3",
+    "copy-webpack-plugin": "~9.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.0.1",
     "gulp": "^4.0.2",

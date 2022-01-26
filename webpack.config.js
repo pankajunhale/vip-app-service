@@ -1,6 +1,6 @@
-var webpack = require('webpack');
 var path = require('path');
 var fs = require('fs');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var nodeModules = {};
 fs.readdirSync('node_modules')
@@ -19,7 +19,7 @@ module.exports = (env) => {
     entry: './src/app.ts',
     target: 'node',
     output: {
-      path: path.join(__dirname, 'build'),
+      path: path.join(__dirname, 'dist'),
       filename: 'backend.js'
     },
     externals: nodeModules,
@@ -33,8 +33,20 @@ module.exports = (env) => {
         { test: /\.tsx?$/, loader: "ts-loader" }
       ]
     },
-    plugins: [
-      new webpack.DefinePlugin({})
+    plugins: [     
+      new CopyWebpackPlugin(
+        { 
+          patterns: [
+            { 
+              from: path.resolve(__dirname, "automation/*.py").replace(/\\/g, "/"), 
+              to: path.resolve(__dirname, "dist").replace(/\\/g, "/") 
+            }
+          ],
+          options: {
+            concurrency: 100
+          }
+        }
+      )
     ]
   }
 }

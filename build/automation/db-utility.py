@@ -1,4 +1,4 @@
-from genericpath import isfile
+from dotenv import load_dotenv
 import importlib
 import mysql.connector as mysql
 from datetime import datetime
@@ -6,10 +6,16 @@ import os
 moduleName = 'common-utility'
 utility = importlib.import_module(moduleName)
 
-MY_HOST = "148.72.214.82"
-MY_USER = "root"
-MY_PASSWORD = "123456"
-MY_DB = "vip-po-automation-dev-db"
+load_dotenv()
+print(os.getenv("API_PORT"))
+print(os.getenv("DB_HOST"))
+print(os.getenv("DB_USER"))
+print(os.getenv("DB"))
+
+MY_HOST = os.getenv("DB_HOST")
+MY_USER = os.getenv("DB_USER")
+MY_PASSWORD = os.getenv("DB_PASSWORD")
+MY_DB = os.getenv("DB")
 
 def main():
     db = None
