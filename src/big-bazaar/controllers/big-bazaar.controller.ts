@@ -1,14 +1,13 @@
 import express from 'express';
 import bigBazaarService from '../services/big-bazaar.service';
 import debug from 'debug';
-import { FilterPurchaseOrderRequest } from '../../common/filter.purchase-order';
 import {Query} from '../../common/interfaces/query.interface';
 import { PurchaseOrderDb } from '../../services/purchase.order';
 import { BigBazaarPurchaseOrderDto } from '../dto/big-bazaar.purcahse.order.dto';
 import fs from 'fs';
-import path from 'path';
+import myHelper from '../../common/my-helper';
+import _, { map } from 'underscore';
 import { TemplateMapperInfoDto } from '../dto/template-mapper-dto';
-import BBConstatnts from '../../common/big-bazaar.constants';
 
 const log: debug.IDebugger = debug('app:users-controller');
 class BigBazaarController {
@@ -131,6 +130,81 @@ class BigBazaarController {
         });
         return list;
     }
+
+    // find the valid headers from template
+    
+    async getPurchaseOrderTemplateHeaderByCount(req: express.Request, res: express.Response): Promise<any> {
+        try {
+            
+            let listOfTableRow: any = [];
+            console.log('started getPurchaseOrderTemplateHeaderByCount(): ');
+            console.log('count: ', req.params.columnCount);
+            const rawPOResult: any = req.body;
+            const count = parseInt(req.params.columnCount);
+            console.log('body: ', rawPOResult);
+
+            if (rawPOResult && rawPOResult.length >= 2) {                
+                _.map(rawPOResult, (item,i: number) => {
+                    if (item['extraction_method'] === 'lattice') {
+                        _.map(item['data'], (itemInner, j: number) => {
+                            let tempArray: Array<any> = [];
+                            _.map(itemInner, (row, k: number) => {
+                               if (row['text']) {
+                                    const obj = {
+                                        text: row['text'],
+                                        mapperIndex: `${i}-${j}-${k}`
+                                    };
+                                    tempArray = tempArray.concat(obj);
+                               }
+                            });
+                            const row = {
+                                totalColumns: tempArray.length,
+                                rowInfo: tempArray
+                            }
+                            listOfTableRow.push(row);
+                        });
+                    }
+                })
+            }
+            const uniqueItemData = [...new Set(listOfTableRow.map((item:any) => item.totalColumns))];
+            //const rawTableInfo = myHelper.filterRawJsonListByLength(listOfTableRow, count);
+            const computedResult: any = [];
+            uniqueItemData.map((item: any, index: number) => {
+                if(item > 0) {
+                    const filteredResult =  listOfTableRow.filter((row: any) => {
+                        return (row.totalColumns === item);
+                    });
+                    const obj = {
+                        tabIndex: index,
+                        tabId: `tab-${item}`,
+                        data: filteredResult
+                    }
+                    computedResult.push(obj);
+                }
+            })
+            res.status(200).send({ data: computedResult, uniqueIndex: uniqueItemData }); 
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send({ error: `Error:- ${message}` }); 
+        }
+    }
+
+
+    async getPurchaseOrderItemsFromTemplate(req: express.Request, res: express.Response): Promise<any> {
+        try {
+            console.log('started getPurchaseOrderItemsFromTemplate(): ');
+            console.log('body: ', req.body);                
+            const listOfTableRow: string[] =  req.body.poResult;
+            const objPOMaster = new BigBazaarPurchaseOrderDto();
+            objPOMaster.TemplateItemLabel = req.body.mapperList;
+            const result = bigBazaarService.findPurchaseOrderItemFromTemplate(objPOMaster,listOfTableRow); 
+            res.status(200).send({ data: result }); 
+        } catch (error) {
+            const {message} = error as unknown as any;
+            res.status(500).send({ error: `Error:- ${message}` }); 
+        }
+    }
+
 
     
     

@@ -26,6 +26,14 @@ export class BigBazaarRoutes extends CommonRoutesConfig {
             .route(`/purchase-order/master`)
             .get(bigBazaarController.getPurchaseOrderMaster)
 
+        this.app
+            .route(`/purchase-order-details/template/table-header/:columnCount`)
+            .post(bigBazaarController.getPurchaseOrderTemplateHeaderByCount)
+
+        this.app
+            .route(`/purchase-order-details/template/table-items/:columnCount`)
+            .post(bigBazaarController.getPurchaseOrderItemsFromTemplate)
+
         return this.app;
     }
 }

@@ -13,7 +13,7 @@ class MyHelper {
         return splitResult;
     }
 
-    filterRawJsonListByLength(rawJsonlist: Array<string>, length: number, tableHeaderList: Array<string>): Array<string> {
+    filterRawJsonListByLength(rawJsonlist: Array<string>, length: number): Array<string> {
         // if(!rawJsonlist)
         //     throw new Error("Invalid input - rawJsonlist");
 
