@@ -34,6 +34,14 @@ class BigBazaarService {
             throw new Error(`Error in processing your request`);
         }
     }
+
+    async findPurchaseOrderItemFromTemplate(obj: IBigBazaarPurchaseOrderDto, listOfTableRow: string[]) {
+        try {
+            return bigBazaarDao.getPurchaseOrderItems(obj, listOfTableRow);
+        } catch (error) {
+            throw new Error(`Error in processing your request`);
+        }
+    }
 }
 
 export default new BigBazaarService();

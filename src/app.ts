@@ -1,4 +1,5 @@
 import express, { urlencoded } from 'express';
+import * as dotenv from "dotenv";
 import path from 'path';
 import * as http from 'http';
 import * as winston from 'winston';
@@ -12,10 +13,10 @@ import debug from 'debug';
 import cron from 'node-cron';
 import bigBazaarController from './big-bazaar/controllers/big-bazaar.controller';
 import { DashboardReportRoutes } from './dashboard-report/dashboard-report.routes.config';
+dotenv.config();
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
-const port = process.env.API_PORT; //3030;
 const routes: Array<CommonRoutesConfig> = [];
 const debugLog: debug.IDebugger = debug('app');
 
@@ -46,8 +47,8 @@ routes.push(new CustomerRoutes(app));
 routes.push(new MapperManagerRoutes(app));
 routes.push(new DashboardReportRoutes(app));
 
-const env = process.env.SERVER;
-const runningMessage = `Server running in environment:${env}, Port:${port}`;
+const port = process.env.API_PORT;
+const runningMessage = `Server running on port:${port}`;
 app.get('/', (req: express.Request, res: express.Response) => {
     res.status(200).send(runningMessage + ' : ' + new Date())
 });

@@ -180,7 +180,7 @@ class BigBazaarDAO {
         });
     }
 
-    private getPurchaseOrderItems(obj: IBigBazaarPurchaseOrderDto, listOfTableRow: string[]): Array<any> {
+    public getPurchaseOrderItems(obj: IBigBazaarPurchaseOrderDto, listOfTableRow: string[]): Array<any> {
         const itemDetailsList = obj.TemplateItemLabel; //this.getPurchaseOrderDetailsLabelList();
         //tbd use group prop
         console.log(itemDetailsList[0].OrderItemTableCount);
@@ -188,7 +188,7 @@ class BigBazaarDAO {
         // handle exception
         const finalResult: any = [];
         const uniqueItemData = [...new Set(itemDetailsList.map(item => item.ColumnIndex))];
-        const rawTableInfo = myHelper.filterRawJsonListByLength(listOfTableRow, orderItemTableColumnCount,obj.ItemsHeader);
+        const rawTableInfo = myHelper.filterRawJsonListByLength(listOfTableRow, orderItemTableColumnCount);
         console.log('Imp:',rawTableInfo);
         _.map(rawTableInfo, (item: any, i: number) => {
             const isHeader = this.isOrderItemContainTableHeader(obj.ItemsHeader, item);
